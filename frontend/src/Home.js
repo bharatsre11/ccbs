@@ -8,7 +8,7 @@ function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/products")
+      .get("https://ccbs.onrender.com/api/products")
       .then((res) => {
         setProducts(res.data);
       })

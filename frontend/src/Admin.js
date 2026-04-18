@@ -10,7 +10,7 @@ function Admin() {
 
   const fetchOrders = () => {
     axios
-      .get("http://localhost:5000/api/orders")
+      .get("http://ccbs.onrender.com/api/orders")
       .then((res) => {
         setOrders(res.data);
       })
@@ -20,7 +20,7 @@ function Admin() {
   const updateStatus = async (id, status) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/orders/status/${id}`,
+        `http://ccbs.onrender.com/api/orders/status/${id}`,
         { status }
       );
 

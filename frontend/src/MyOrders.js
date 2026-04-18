@@ -10,7 +10,7 @@
         if (!user) return;
 
         axios
-        .get(`http://localhost:5000/api/orders/user/${user._id}`)
+        .get(`http://ccbs.onrender.com/api/orders/user/${user._id}`)
         .then((res) => {
             console.log("Orders:", res.data); // ✅ Debug log
             setOrders(res.data);
