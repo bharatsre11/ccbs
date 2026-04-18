@@ -11,7 +11,10 @@ const orderRoutes = require("./routes/Order");
 const app = express();
 
 app.use(cors({
-  origin: "*"
+  origin: [
+    "https://craftedcharmsbysaloni.co.in",
+    "https://www.craftedcharmsbysaloni.co.in"
+  ]
 }));
 app.use(express.json());
 
