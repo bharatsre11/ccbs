@@ -13,7 +13,7 @@ function ProductPage() {
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    axios.get("http://ccbs.onrender.com/api/products")
+    axios.get("https://ccbs.onrender.com/api/products")
       .then(res => {
         const found = res.data.find(p => p._id === id);
         setProduct(found);
@@ -52,7 +52,7 @@ function ProductPage() {
       };
 
       const res = await axios.post(
-        "http://ccbs.onrender.com/api/orders/place",
+        "https://ccbs.onrender.com/api/orders/place",
         orderData
       );
 

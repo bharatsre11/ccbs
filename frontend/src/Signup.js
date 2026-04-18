@@ -17,7 +17,7 @@ function Signup() {
 
   const handleSignup = async () => {
     try {
-      await axios.post("http://ccbs.onrender.com/api/auth/signup", data);
+      await axios.post("https://ccbs.onrender.com/api/auth/signup", data);
       alert("Signup successful 🎉");
       navigate("/login");
     } catch (err) {
