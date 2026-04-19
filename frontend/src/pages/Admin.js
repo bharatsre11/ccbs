@@ -127,20 +127,23 @@ function Admin() {
 
     {/* CATEGORY DROPDOWN */}
     <select
-      onChange={(e) =>
-        setNewProduct({ ...newProduct, category: e.target.value })
-      }
+        value={newProduct.category || ""}
+        onChange={(e) =>
+            setNewProduct({ ...newProduct, category: e.target.value })
+        }
     >
-      <option>Select Category</option>
-      {categories.map((c) => (
-        <option key={c._id} value={c._id}>
-          {c.name}
-        </option>
-      ))}
+    <option value="">Select Category</option>
+
+        {categories.map((c) => (
+            <option key={c._id} value={c._id}>
+                {c.name}
+            </option>
+        ))}
     </select>
 
     <button
       onClick={() => {
+        console.log("SENDING PRODUCT:", newProduct);
         axios
           .post(`${BASE_URL}/api/products`, newProduct)
           .then(() => {
