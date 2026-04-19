@@ -13,7 +13,10 @@ function Home() {
   useEffect(() => {
     axios
       .get("https://ccbs.onrender.com/api/products")
-      .then((res) => setProducts(res.data))
+      .then((res) => {
+        console.log("HOME PRODUCTS:", res.data); // ✅ DEBUG
+        setProducts(res.data);
+      })
       .catch((err) => console.log(err));
   }, []);
 
@@ -25,9 +28,9 @@ function Home() {
       .catch((err) => console.log(err));
   }, []);
 
-  // 🔥 Filter products
+  // 🔥 FIXED FILTER (IMPORTANT)
   const filteredProducts = selectedCategory
-    ? products.filter((p) => p.category === selectedCategory)
+    ? products.filter((p) => p.category?._id === selectedCategory)
     : products;
 
   return (
@@ -50,7 +53,7 @@ function Home() {
         CCBS Art Store 🎨
       </h1>
 
-      {/* 🔥 CATEGORIES SECTION */}
+      {/* 🔥 CATEGORIES */}
       <h2 style={{ marginBottom: "15px" }}>Shop by Category</h2>
 
       <div
@@ -61,7 +64,7 @@ function Home() {
           flexWrap: "wrap",
         }}
       >
-        {/* ALL BUTTON */}
+        {/* ALL */}
         <button
           onClick={() => setSelectedCategory(null)}
           style={{
@@ -96,7 +99,7 @@ function Home() {
         ))}
       </div>
 
-      {/* 🔥 PRODUCTS GRID */}
+      {/* 🔥 PRODUCTS */}
       <div
         style={{
           display: "grid",
@@ -104,55 +107,59 @@ function Home() {
           gap: "25px",
         }}
       >
-        {filteredProducts.map((p) => (
-          <div
-            key={p._id}
-            onClick={() => navigate(`/product/${p._id}`)}
-            style={{
-              background: "white",
-              borderRadius: "12px",
-              overflow: "hidden",
-              cursor: "pointer",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              transition: "0.3s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = "scale(1.03)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.transform = "scale(1)")
-            }
-          >
-            <img
-              src={p.image}
-              alt={p.name}
-              onError={(e) =>
-                (e.target.src = "https://via.placeholder.com/300")
-              }
+        {filteredProducts.length === 0 ? (
+          <h3>No products found 😕</h3>
+        ) : (
+          filteredProducts.map((p) => (
+            <div
+              key={p._id}
+              onClick={() => navigate(`/product/${p._id}`)}
               style={{
-                width: "100%",
-                height: "200px",
-                objectFit: "cover",
+                background: "white",
+                borderRadius: "12px",
+                overflow: "hidden",
+                cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                transition: "0.3s",
               }}
-            />
-
-            <div style={{ padding: "15px" }}>
-              <h3 style={{ marginBottom: "8px", fontSize: "18px" }}>
-                {p.name}
-              </h3>
-
-              <p
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "scale(1.03)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "scale(1)")
+              }
+            >
+              <img
+                src={p.image}
+                alt={p.name}
+                onError={(e) =>
+                  (e.target.src = "https://via.placeholder.com/300")
+                }
                 style={{
-                  fontWeight: "bold",
-                  color: "#ff4d6d",
-                  fontSize: "16px",
+                  width: "100%",
+                  height: "200px",
+                  objectFit: "cover",
                 }}
-              >
-                ₹{p.price}
-              </p>
+              />
+
+              <div style={{ padding: "15px" }}>
+                <h3 style={{ marginBottom: "8px", fontSize: "18px" }}>
+                  {p.name}
+                </h3>
+
+                <p
+                  style={{
+                    fontWeight: "bold",
+                    color: "#ff4d6d",
+                    fontSize: "16px",
+                  }}
+                >
+                  ₹{p.price}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
