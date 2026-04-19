@@ -8,6 +8,8 @@ function Admin() {
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState({ name: "", image: "" });
 
   // 🔥 Fetch data
   useEffect(() => {
@@ -29,6 +31,12 @@ function Admin() {
         .catch(err => console.log(err));
     }
 
+    if (tab === "categories") {
+      axios.get(`${BASE_URL}/api/categories`)
+        .then(res => setCategories(res.data))
+        .catch(err => console.log(err));
+    }
+
   }, [tab]);
 
   return (
@@ -37,7 +45,7 @@ function Admin() {
 
       {/* 🔹 Tabs */}
       <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
-  {["orders", "products", "users"].map((t) => (
+  {["orders", "products", "users", "categories"].map((t) => (
     <button
       key={t}
       onClick={() => setTab(t)}
@@ -94,6 +102,45 @@ function Admin() {
             </div>
           ))}
         </div>
+      )}
+
+      {tab === "categories" && (
+     <div>
+      <h2>Categories</h2>
+
+      {/* ADD CATEGORY */}
+      <input
+       placeholder="Category name"
+       onChange={(e) =>
+        setNewCategory({ ...newCategory, name: e.target.value })
+      }
+    />
+    <input
+      placeholder="Image URL"
+      onChange={(e) =>
+        setNewCategory({ ...newCategory, image: e.target.value })
+      }
+    />
+
+    <button
+      onClick={() => {
+        axios.post(`${BASE_URL}/api/categories`, newCategory)
+          .then(() => {
+            alert("Category added");
+            window.location.reload();
+          });
+      }}
+    >
+      Add Category
+    </button>
+
+    {/* LIST */}
+    {categories.map((c) => (
+      <div key={c._id} style={{ marginTop: "10px" }}>
+        <p>{c.name}</p>
+      </div>
+       ))}
+    </div>
       )}
     </div>
   );
