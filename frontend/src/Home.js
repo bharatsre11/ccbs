@@ -4,16 +4,31 @@ import { useNavigate } from "react-router-dom";
 
 function Home() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
   const navigate = useNavigate();
 
+  // 🔥 Fetch products
   useEffect(() => {
     axios
       .get("https://ccbs.onrender.com/api/products")
-      .then((res) => {
-        setProducts(res.data);
-      })
+      .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);
+
+  // 🔥 Fetch categories
+  useEffect(() => {
+    axios
+      .get("https://ccbs.onrender.com/api/categories")
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  // 🔥 Filter products
+  const filteredProducts = selectedCategory
+    ? products.filter((p) => p.category === selectedCategory)
+    : products;
 
   return (
     <div
@@ -23,6 +38,7 @@ function Home() {
         minHeight: "100vh",
       }}
     >
+      {/* 🔹 TITLE */}
       <h1
         style={{
           textAlign: "center",
@@ -34,6 +50,53 @@ function Home() {
         CCBS Art Store 🎨
       </h1>
 
+      {/* 🔥 CATEGORIES SECTION */}
+      <h2 style={{ marginBottom: "15px" }}>Shop by Category</h2>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          marginBottom: "30px",
+          flexWrap: "wrap",
+        }}
+      >
+        {/* ALL BUTTON */}
+        <button
+          onClick={() => setSelectedCategory(null)}
+          style={{
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            background: selectedCategory === null ? "#ff4d6d" : "#ddd",
+            color: selectedCategory === null ? "white" : "black",
+          }}
+        >
+          ALL
+        </button>
+
+        {categories.map((c) => (
+          <button
+            key={c._id}
+            onClick={() => setSelectedCategory(c._id)}
+            style={{
+              padding: "8px 16px",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              background:
+                selectedCategory === c._id ? "#ff4d6d" : "#ddd",
+              color:
+                selectedCategory === c._id ? "white" : "black",
+            }}
+          >
+            {c.name}
+          </button>
+        ))}
+      </div>
+
+      {/* 🔥 PRODUCTS GRID */}
       <div
         style={{
           display: "grid",
@@ -41,7 +104,7 @@ function Home() {
           gap: "25px",
         }}
       >
-        {products.map((p) => (
+        {filteredProducts.map((p) => (
           <div
             key={p._id}
             onClick={() => navigate(`/product/${p._id}`)}
@@ -74,12 +137,7 @@ function Home() {
             />
 
             <div style={{ padding: "15px" }}>
-              <h3
-                style={{
-                  marginBottom: "8px",
-                  fontSize: "18px",
-                }}
-              >
+              <h3 style={{ marginBottom: "8px", fontSize: "18px" }}>
                 {p.name}
               </h3>
 
