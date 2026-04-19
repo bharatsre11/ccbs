@@ -34,10 +34,6 @@ function Admin() {
         .then(res => setProducts(res.data))
         .catch(err => console.log(err));
 
-    axios.get(`${BASE_URL}/api/variants`)
-        .then(res => setVariants(res.data))
-        .catch(err => console.log(err));
-
     if (tab === "orders") {
       axios.get(`${BASE_URL}/api/orders`)
         .then(res => setOrders(res.data))
