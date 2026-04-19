@@ -16,10 +16,16 @@ function Admin() {
     image: "",
     category: ""
     });
+  const [newVariant, setNewVariant] = useState({
+    productId: "",
+    name: "",
+    image: "",
+    price: ""
+    });
 
   // 🔥 Fetch data
   useEffect(() => {
-    
+
     axios.get(`${BASE_URL}/api/categories`)
     .then(res => setCategories(res.data))
     .catch(err => console.log(err));
@@ -56,7 +62,7 @@ function Admin() {
 
       {/* 🔹 Tabs */}
       <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
-  {["orders", "products", "users", "categories"].map((t) => (
+  {["orders", "products", "users", "categories", "variants"].map((t) => (
     <button
       key={t}
       onClick={() => setTab(t)}
@@ -204,6 +210,58 @@ function Admin() {
        ))}
     </div>
       )}
+
+      {tab === "variants" && (
+  <div>
+    <h2>Add Designs</h2>
+
+    <select
+      onChange={(e) =>
+        setNewVariant({ ...newVariant, productId: e.target.value })
+      }
+    >
+      <option>Select Product</option>
+      {products.map((p) => (
+        <option key={p._id} value={p._id}>
+          {p.name}
+        </option>
+      ))}
+    </select>
+
+    <input
+      placeholder="Design Name"
+      onChange={(e) =>
+        setNewVariant({ ...newVariant, name: e.target.value })
+      }
+    />
+
+    <input
+      placeholder="Image URL"
+      onChange={(e) =>
+        setNewVariant({ ...newVariant, image: e.target.value })
+      }
+    />
+
+    <input
+      placeholder="Price"
+      onChange={(e) =>
+        setNewVariant({ ...newVariant, price: e.target.value })
+      }
+    />
+
+    <button
+      onClick={() => {
+        axios.post(`${BASE_URL}/api/variants`, newVariant)
+          .then(() => {
+            alert("Design added ✅");
+            window.location.reload();
+          });
+      }}
+    >
+      Add Design
+      </button>
+      </div>
+        )}
     </div>
   );
 }

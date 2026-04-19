@@ -25,6 +25,10 @@ const orderSchema = new mongoose.Schema({
   status: {
     type: String,
     default: "Pending"
+  },
+  variantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Variant"
   }
 
 }, { timestamps: true });

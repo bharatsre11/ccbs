@@ -6,18 +6,26 @@ function ProductPage() {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
+  const [variants, setVariants] = useState([]);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+
   const [formData, setFormData] = useState({});
   const [address, setAddress] = useState("");
 
-  // Get logged in user
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // 🔥 Fetch product
   useEffect(() => {
-    axios.get("https://ccbs.onrender.com/api/products")
-      .then(res => {
-        const found = res.data.find(p => p._id === id);
-        setProduct(found);
-      })
+    axios.get(`https://ccbs.onrender.com/api/products/${id}`)
+      .then(res => setProduct(res.data))
+      .catch(err => console.log(err));
+  }, [id]);
+
+  // 🔥 Fetch variants
+  useEffect(() => {
+    axios
+      .get(`https://ccbs.onrender.com/api/variants/${id}`)
+      .then((res) => setVariants(res.data))
       .catch(err => console.log(err));
   }, [id]);
 
@@ -35,6 +43,11 @@ function ProductPage() {
         return;
       }
 
+      if (!selectedVariant) {
+        alert("Please select a design ❗");
+        return;
+      }
+
       if (!address) {
         alert("Please enter delivery address ❗");
         return;
@@ -43,7 +56,9 @@ function ProductPage() {
       const orderData = {
         userId: user._id,
         productId: product._id,
+        variantId: selectedVariant._id, // 🔥 NEW
         quantity: 1,
+        price: selectedVariant.price,   // 🔥 use variant price
         customData: Object.keys(formData).map(key => ({
           label: key,
           value: formData[key]
@@ -69,10 +84,10 @@ function ProductPage() {
 
   return (
     <div style={{
-        padding: "30px",
-        maxWidth: "600px",
-        margin: "auto"
-        }}>
+      padding: "30px",
+      maxWidth: "700px",
+      margin: "auto"
+    }}>
       <h1>{product.name}</h1>
 
       <img
@@ -82,8 +97,45 @@ function ProductPage() {
         style={{ borderRadius: "10px" }}
       />
 
-      <h2>₹{product.price}</h2>
-      <p>{product.description}</p>
+      <h2>
+        ₹{selectedVariant ? selectedVariant.price : product.price}
+      </h2>
+
+      {/* 🔥 VARIANTS (DESIGNS) */}
+      <div style={{ marginTop: "20px" }}>
+        <h3>Select Design</h3>
+
+        <div style={{
+          display: "flex",
+          gap: "15px",
+          flexWrap: "wrap"
+        }}>
+          {variants.map((v) => (
+            <div
+              key={v._id}
+              onClick={() => setSelectedVariant(v)}
+              style={{
+                border: selectedVariant?._id === v._id
+                  ? "2px solid #ff4d6d"
+                  : "1px solid #ccc",
+                padding: "10px",
+                borderRadius: "8px",
+                cursor: "pointer",
+                width: "140px"
+              }}
+            >
+              <img
+                src={v.image}
+                alt={v.name}
+                width="100%"
+                style={{ borderRadius: "6px" }}
+              />
+              <p>{v.name}</p>
+              <p>₹{v.price}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* CUSTOMIZATION */}
       {product.isCustomizable && (
