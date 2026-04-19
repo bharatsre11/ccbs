@@ -5,7 +5,7 @@ import Login from "./Login";
 import Signup from "./Signup";
 import MyOrders from "./MyOrders";
 import Navbar from "./Navbar";
-import Admin from "./Admin";
+import Admin from "./pages/Admin";
 
 function App() {
   return (
