@@ -50,13 +50,28 @@ function Navbar() {
       <div>
         {user ? (
           <>
-            <button
-              onClick={() => navigate("/my-orders")}
-              style={buttonStyle}
-            >
-              My Orders
-            </button>
+            {/* 🔥 ROLE BASED BUTTON */}
+            {user.role === "admin" ? (
+              <button
+                onClick={() => navigate("/admin")}
+                style={{
+                  ...buttonStyle,
+                  background: "#4caf50",
+                  color: "white"
+                }}
+              >
+                Dashboard
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/my-orders")}
+                style={buttonStyle}
+              >
+                My Orders
+              </button>
+            )}
 
+            {/* LOGOUT */}
             <button
               onClick={handleLogout}
               style={{

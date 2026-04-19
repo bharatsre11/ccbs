@@ -46,4 +46,16 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.put("/role/:id", async (req, res) => {
+  const { role } = req.body;
+
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { role },
+    { new: true }
+  );
+
+  res.json(user);
+});
+
 module.exports = router;
