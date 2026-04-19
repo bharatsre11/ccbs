@@ -3,18 +3,23 @@ const mongoose = require("mongoose");
 const productSchema = new mongoose.Schema({
   name: String,
   price: Number,
-  description: String,
   image: String,
 
-  isCustomizable: {
-    type: Boolean,
-    default: false
+  // 🔥 ADD THIS (CRITICAL)
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category"
   },
 
-  customTextField: {
-      type: String, 
-      default: "Enter your custom text here" 
+  description: String,
+
+  isCustomizable: Boolean,
+
+  customFields: [
+    {
+      label: String
     }
-}, { timestamps: true });
+  ]
+});
 
 module.exports = mongoose.model("Product", productSchema);
