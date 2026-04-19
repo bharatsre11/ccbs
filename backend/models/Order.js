@@ -1,17 +1,21 @@
-const mongoose = require("mongoose");
-
 const orderSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   },
-
   productId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product"
   },
 
+  // 🔥 ADD THIS
+  variantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Variant"
+  },
+
   quantity: Number,
+  price: Number,
 
   customData: [
     {
@@ -25,12 +29,5 @@ const orderSchema = new mongoose.Schema({
   status: {
     type: String,
     default: "Pending"
-  },
-  variantId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Variant"
   }
-
-}, { timestamps: true });
-
-module.exports = mongoose.model("Order", orderSchema);
+});

@@ -86,17 +86,108 @@ function Admin() {
 
       {/* 🔹 ORDERS */}
       {tab === "orders" && (
-        <div>
-          <h2>Orders</h2>
-          {orders.map(o => (
-            <div key={o._id} style={{ border: "1px solid #ccc", marginBottom: "10px", padding: "10px" }}>
-              <p><b>User:</b> {o.userId?.name}</p>
-              <p><b>Product:</b> {o.productId?.name}</p>
-              <p><b>Status:</b> {o.status}</p>
+  <div>
+    <h2 style={{ marginBottom: "20px" }}>All Orders 📦</h2>
+
+    {orders.length === 0 ? (
+      <p>No orders found</p>
+    ) : (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+        {orders.map((o) => (
+          <div
+            key={o._id}
+            style={{
+              background: "white",
+              borderRadius: "12px",
+              padding: "15px",
+              width: "300px",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+            }}
+          >
+            {/* 🔥 IMAGE */}
+            <img
+              src={
+                o.variantId?.image ||
+                o.productId?.image ||
+                "https://via.placeholder.com/300"
+              }
+              alt=""
+              style={{
+                width: "100%",
+                borderRadius: "10px",
+                marginBottom: "10px",
+              }}
+            />
+
+            {/* USER */}
+            <p><b>User:</b> {o.userId?.name}</p>
+
+            {/* PRODUCT */}
+            <h3>{o.productId?.name}</h3>
+
+            {/* 🔥 DESIGN */}
+            {o.variantId && (
+              <p style={{ fontSize: "13px", color: "#555" }}>
+                🎨 Design: <b>{o.variantId.name}</b>
+              </p>
+            )}
+
+            {/* PRICE */}
+            <p><b>₹{o.price}</b></p>
+
+            {/* ADDRESS */}
+            <p style={{ fontSize: "12px", color: "#555" }}>
+              📍 {o.address}
+            </p>
+
+            {/* CUSTOM DATA */}
+            {o.customData?.length > 0 && (
+              <div style={{ marginTop: "10px" }}>
+                <strong>Custom Details:</strong>
+                {o.customData.map((item, i) => (
+                  <p key={i} style={{ fontSize: "13px" }}>
+                    {item.label}: {item.value}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {/* 🔥 STATUS DROPDOWN */}
+            <div style={{ marginTop: "10px" }}>
+              <select
+                value={o.status}
+                onChange={(e) => {
+                  const newStatus = e.target.value;
+
+                  axios.put(
+                    `${BASE_URL}/api/orders/status/${o._id}`,
+                    { status: newStatus }
+                  ).then(() => {
+                    alert("Status updated ✅");
+
+                    // 🔥 refresh orders
+                    axios.get(`${BASE_URL}/api/orders`)
+                      .then(res => setOrders(res.data));
+                  });
+                }}
+                style={{
+                  padding: "6px",
+                  borderRadius: "6px",
+                  width: "100%",
+                }}
+              >
+                <option>Pending</option>
+                <option>Processing</option>
+                <option>Shipped</option>
+                <option>Delivered</option>
+              </select>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+       </div>
+       )}
+      </div>
+     )}
 
       {/* 🔹 PRODUCTS */}
       {tab === "products" && (
