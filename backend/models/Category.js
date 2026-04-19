@@ -1,13 +1,7 @@
 const mongoose = require("mongoose");
 
-const variantSchema = new mongoose.Schema({
-  productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product"
-  },
-  name: String,
-  image: String,
-  price: Number
+const categorySchema = new mongoose.Schema({
+  name: String
 });
 
-module.exports = mongoose.model("Variant", variantSchema);
+module.exports = mongoose.model("Category", categorySchema);
