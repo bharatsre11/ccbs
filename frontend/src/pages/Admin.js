@@ -10,6 +10,12 @@ function Admin() {
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState({ name: "", image: "" });
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: "",
+    image: "",
+    category: ""
+    });
 
   // 🔥 Fetch data
   useEffect(() => {
@@ -79,16 +85,67 @@ function Admin() {
 
       {/* 🔹 PRODUCTS */}
       {tab === "products" && (
-        <div>
-          <h2>Products</h2>
-          {products.map(p => (
-            <div key={p._id} style={{ border: "1px solid #ccc", marginBottom: "10px", padding: "10px" }}>
-              <p>{p.name}</p>
-              <p>₹{p.price}</p>
-            </div>
-          ))}
+  <div>
+    <h2>Products</h2>
+
+    {/* 🔥 ADD PRODUCT FORM */}
+    <input
+      placeholder="Product name"
+      onChange={(e) =>
+        setNewProduct({ ...newProduct, name: e.target.value })
+      }
+    />
+
+    <input
+      placeholder="Price"
+      onChange={(e) =>
+        setNewProduct({ ...newProduct, price: e.target.value })
+      }
+    />
+
+    <input
+      placeholder="Image URL"
+      onChange={(e) =>
+        setNewProduct({ ...newProduct, image: e.target.value })
+      }
+    />
+
+    {/* CATEGORY DROPDOWN */}
+    <select
+      onChange={(e) =>
+        setNewProduct({ ...newProduct, category: e.target.value })
+      }
+    >
+      <option>Select Category</option>
+      {categories.map((c) => (
+        <option key={c._id} value={c._id}>
+          {c.name}
+        </option>
+      ))}
+    </select>
+
+    <button
+      onClick={() => {
+        axios
+          .post(`${BASE_URL}/api/products`, newProduct)
+          .then(() => {
+            alert("Product added ✅");
+            window.location.reload();
+          })
+          .catch((err) => console.log(err));
+      }}
+    >
+      Add Product
+    </button>
+
+    {/* 🔹 LIST PRODUCTS */}
+        {products.map((p) => (
+        <div key={p._id} style={{ marginTop: "10px" }}>
+            <p>{p.name} - ₹{p.price}</p>
         </div>
-      )}
+        ))}
+        </div>
+    )}
 
       {/* 🔹 USERS */}
       {tab === "users" && (
