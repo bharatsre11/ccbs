@@ -36,11 +36,24 @@ function Admin() {
       <h1>Admin Dashboard 🚀</h1>
 
       {/* 🔹 Tabs */}
-      <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => setTab("orders")}>Orders</button>
-        <button onClick={() => setTab("products")}>Products</button>
-        <button onClick={() => setTab("users")}>Users</button>
-      </div>
+      <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
+  {["orders", "products", "users"].map((t) => (
+    <button
+      key={t}
+      onClick={() => setTab(t)}
+      style={{
+        padding: "8px 16px",
+        border: "none",
+        borderRadius: "6px",
+        cursor: "pointer",
+        background: tab === t ? "#ff4d6d" : "#ddd",
+        color: tab === t ? "white" : "black"
+      }}
+    >
+      {t.toUpperCase()}
+    </button>
+  ))}
+</div>
 
       {/* 🔹 ORDERS */}
       {tab === "orders" && (
