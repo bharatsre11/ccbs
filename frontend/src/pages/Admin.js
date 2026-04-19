@@ -19,6 +19,11 @@ function Admin() {
 
   // 🔥 Fetch data
   useEffect(() => {
+    
+    axios.get(`${BASE_URL}/api/categories`)
+    .then(res => setCategories(res.data))
+    .catch(err => console.log(err));
+
     if (tab === "orders") {
       axios.get(`${BASE_URL}/api/orders`)
         .then(res => setOrders(res.data))
