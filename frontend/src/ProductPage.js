@@ -60,10 +60,10 @@ function ProductPage() {
         }
       );
 
-      const WHATSAPP_NUMBER = "919045869279"; // 👈 your number
+      const WHATSAPP_NUMBER = "919045120279"; // 👈 your number
 
       const message = `
-      🛍️ New Order Received!
+      🛍️ Hey, I have placed an Order, please check!
 
       👤 Customer: ${user.name}
       📦 Product: ${product.name}
