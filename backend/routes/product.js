@@ -16,7 +16,8 @@ router.post("/", async (req, res) => {
 // 🔥 GET ALL PRODUCTS
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find().populate("category");
+    //const products = await Product.find().populate("category");
+    const products = await Product.find().lean(); // ✅ USE .lean() FOR FASTER QUERIES;
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });

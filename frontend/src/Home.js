@@ -6,18 +6,25 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
+  const [loading, setLoading] = useState(true);
+  const skeletonStyle = {
+  background: "linear-gradient(90deg, #eee, #ddd, #eee)",
+  backgroundSize: "200% 100%",
+  animation: "shine 1.5s infinite"
+  };
   const navigate = useNavigate();
 
   // 🔥 Fetch products
   useEffect(() => {
-    axios
-      .get("https://ccbs.onrender.com/api/products")
-      .then((res) => {
-        console.log("HOME PRODUCTS:", res.data); // ✅ DEBUG
-        setProducts(res.data);
-      })
-      .catch((err) => console.log(err));
+    axios.get("https://ccbs.onrender.com/api/products")
+    .then(res => {
+      setProducts(res.data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.log(err);
+      setLoading(false);
+    });
   }, []);
 
   // 🔥 Fetch categories
@@ -27,6 +34,68 @@ function Home() {
       .then((res) => setCategories(res.data))
       .catch((err) => console.log(err));
   }, []);
+
+  if (loading) {
+  return (
+    <div style={{ padding: "30px" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "30px" }}>
+        Loading products...
+      </h1>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+          gap: "25px",
+        }}
+      >
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            style={{
+              borderRadius: "12px",
+              overflow: "hidden",
+              background: "#fff",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+              padding: "10px",
+            }}
+          >
+            {/* IMAGE SKELETON */}
+            <div
+              style={{
+                height: "200px",
+                borderRadius: "10px",
+                ...skeletonStyle,
+              }}
+            />
+
+            {/* TEXT SKELETON */}
+            <div style={{ marginTop: "10px" }}>
+              <div
+                style={{
+                  height: "15px",
+                  width: "70%",
+                  marginBottom: "8px",
+                  borderRadius: "5px",
+                  ...skeletonStyle,
+                }}
+              />
+
+              <div
+                style={{
+                  height: "15px",
+                  width: "40%",
+                  borderRadius: "5px",
+                  ...skeletonStyle,
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+   );
+  }
 
   // 🔥 FIXED FILTER (IMPORTANT)
   const filteredProducts = selectedCategory
@@ -41,6 +110,14 @@ function Home() {
         minHeight: "100vh",
       }}
     >
+    <style>
+      {`
+      @keyframes shine {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+      }
+    `}
+    </style>
       {/* 🔹 TITLE */}
       <h1
         style={{
@@ -98,7 +175,7 @@ function Home() {
           </button>
         ))}
       </div>
-
+      
       {/* 🔥 PRODUCTS */}
       <div
         style={{
