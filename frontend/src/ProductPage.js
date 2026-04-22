@@ -16,9 +16,10 @@ function ProductPage() {
 
   // 🔥 Fetch product
   useEffect(() => {
-    axios.get(`https://ccbs.onrender.com/api/products/${id}`)
-      .then(res => setProduct(res.data))
-      .catch(err => console.log(err));
+    axios
+      .get(`https://ccbs.onrender.com/api/products/${id}`)
+      .then((res) => setProduct(res.data))
+      .catch((err) => console.log(err));
   }, [id]);
 
   // 🔥 Fetch variants
@@ -26,167 +27,182 @@ function ProductPage() {
     axios
       .get(`https://ccbs.onrender.com/api/variants/${id}`)
       .then((res) => setVariants(res.data))
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   }, [id]);
 
   const handleChange = (label, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [label]: value
+      [label]: value,
     }));
   };
 
   const handleOrder = async () => {
     try {
-      if (!user) {
-        alert("Please login first ❗");
-        return;
-      }
+      if (!user) return alert("Please login first ❗");
+      if (!selectedVariant) return alert("Please select a design ❗");
+      if (!address) return alert("Please enter delivery address ❗");
 
-      if (!selectedVariant) {
-        alert("Please select a design ❗");
-        return;
-      }
-
-      if (!address) {
-        alert("Please enter delivery address ❗");
-        return;
-      }
-
-      const orderData = {
-        userId: user._id,
-        productId: product._id,
-        variantId: selectedVariant._id, // 🔥 NEW
-        quantity: 1,
-        price: selectedVariant.price,   // 🔥 use variant price
-        customData: Object.keys(formData).map(key => ({
-          label: key,
-          value: formData[key]
-        })),
-        address: address
-      };
-
-      const res = await axios.post(
+      await axios.post(
         "https://ccbs.onrender.com/api/orders/place",
-        orderData
+        {
+          userId: user._id,
+          productId: product._id,
+          variantId: selectedVariant._id,
+          quantity: 1,
+          price: selectedVariant.price,
+          customData: Object.keys(formData).map((key) => ({
+            label: key,
+            value: formData[key],
+          })),
+          address,
+        }
       );
 
       alert("Order placed successfully 🎉");
-      console.log(res.data);
-
     } catch (err) {
       console.log(err);
       alert("Error placing order");
     }
   };
 
-  if (!product) return <h2>Loading...</h2>;
+  if (!product)
+    return <h2 style={{ textAlign: "center" }}>Loading...</h2>;
 
   return (
-    <div style={{
-      padding: "30px",
-      maxWidth: "700px",
-      margin: "auto"
-    }}>
-      <h1>{product.name}</h1>
-
-      <img
-        src={product.image}
-        alt={product.name}
-        width="300"
-        style={{ borderRadius: "10px" }}
-      />
-
-      <h2>
-        ₹{selectedVariant ? selectedVariant.price : product.price}
-      </h2>
-
-      {/* 🔥 VARIANTS (DESIGNS) */}
-      <div style={{ marginTop: "20px" }}>
-        <h3>Select Design</h3>
-
-        <div style={{
-          display: "flex",
-          gap: "15px",
-          flexWrap: "wrap"
-        }}>
-          {variants.map((v) => (
-            <div
-              key={v._id}
-              onClick={() => setSelectedVariant(v)}
-              style={{
-                border: selectedVariant?._id === v._id
-                  ? "2px solid #ff4d6d"
-                  : "1px solid #ccc",
-                padding: "10px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                width: "140px"
-              }}
-            >
-              <img
-                src={v.image}
-                alt={v.name}
-                width="100%"
-                style={{ borderRadius: "6px" }}
-              />
-              <p>{v.name}</p>
-              <p>₹{v.price}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CUSTOMIZATION */}
-      {product.isCustomizable && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Customize your product</h3>
-
-          {product.customFields.map((field, index) => (
-            <div key={index} style={{ marginBottom: "10px" }}>
-              <label>{field.label}</label><br />
-
-              <input
-                type="text"
-                placeholder={`Enter ${field.label}`}
-                onChange={(e) =>
-                  handleChange(field.label, e.target.value)
-                }
-                style={{ padding: "5px", width: "250px" }}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ADDRESS */}
-      <div style={{ marginTop: "20px" }}>
-        <label>Delivery Address</label><br />
-        <input
-          type="text"
-          placeholder="Enter your address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          style={{ padding: "8px", width: "300px" }}
-        />
-      </div>
-
-      {/* ORDER BUTTON */}
-      <button
-        onClick={handleOrder}
+    <div style={{ background: "#f6f6f6", minHeight: "100vh", padding: "30px" }}>
+      <div
         style={{
-          marginTop: "20px",
-          padding: "12px 25px",
-          background: "#ff4d6d",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          fontSize: "16px"
+          maxWidth: "1000px",
+          margin: "auto",
+          display: "flex",
+          gap: "40px",
+          flexWrap: "wrap",
         }}
       >
-        Place Order
-      </button>
+        {/* 🔥 LEFT - IMAGE */}
+        <div style={{ flex: 1 }}>
+          <img
+            src={selectedVariant?.image || product.image}
+            alt=""
+            style={{
+              width: "100%",
+              borderRadius: "12px",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+            }}
+          />
+        </div>
+
+        {/* 🔥 RIGHT - DETAILS */}
+        <div style={{ flex: 1 }}>
+          <h1 style={{ marginBottom: "10px" }}>{product.name}</h1>
+
+          <h2 style={{ color: "#ff4d6d", marginBottom: "10px" }}>
+            ₹{selectedVariant ? selectedVariant.price : product.price}
+          </h2>
+
+          <p style={{ color: "#555", marginBottom: "20px" }}>
+            {product.description}
+          </p>
+
+          {/* 🔥 DESIGN SELECTION */}
+          <h3>Select Design</h3>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              flexWrap: "wrap",
+              marginBottom: "20px",
+            }}
+          >
+            {variants.map((v) => (
+              <img
+                key={v._id}
+                src={v.image}
+                alt=""
+                onClick={() => setSelectedVariant(v)}
+                style={{
+                  width: "70px",
+                  height: "70px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  border:
+                    selectedVariant?._id === v._id
+                      ? "3px solid #ff4d6d"
+                      : "2px solid #ddd",
+                }}
+              />
+            ))}
+          </div>
+
+          {/* 🔥 CUSTOMIZATION */}
+          {product.isCustomizable && (
+            <div style={{ marginBottom: "20px" }}>
+              <h3>Customize</h3>
+
+              {product.customFields.map((field, i) => (
+                <input
+                  key={i}
+                  placeholder={field.label}
+                  onChange={(e) =>
+                    handleChange(field.label, e.target.value)
+                  }
+                  style={{
+                    display: "block",
+                    marginBottom: "10px",
+                    padding: "10px",
+                    width: "100%",
+                    borderRadius: "6px",
+                    border: "1px solid #ccc",
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* 🔥 ADDRESS */}
+          <input
+            placeholder="Enter delivery address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            style={{
+              padding: "10px",
+              width: "100%",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+              marginBottom: "15px",
+            }}
+          />
+
+          {/* 🔥 CTA */}
+          <button
+            onClick={handleOrder}
+            style={{
+              width: "100%",
+              padding: "15px",
+              background: "#ff4d6d",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Place Order 🚀
+          </button>
+
+          {/* 🔥 TRUST SIGNALS */}
+          <div style={{ marginTop: "15px", fontSize: "13px", color: "#666" }}>
+            ✔ Handmade with love <br />
+            ✔ 100% Customizable <br />
+            ✔ Delivery in 5-7 days <br />
+            ✔ Secure & trusted orders ❤️
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
