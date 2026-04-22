@@ -14,6 +14,7 @@ function ProductPage() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  const WHATSAPP_NUMBER = "919045120279";
   // 🔥 Fetch product
   useEffect(() => {
     axios
@@ -59,7 +60,31 @@ function ProductPage() {
         }
       );
 
+      const WHATSAPP_NUMBER = "919045869279"; // 👈 your number
+
+      const message = `
+      🛍️ New Order Received!
+
+      👤 Customer: ${user.name}
+      📦 Product: ${product.name}
+      🎨 Design: ${selectedVariant.name}
+      💰 Price: ₹${selectedVariant.price}
+
+      ${Object.keys(formData).length > 0 ? "📝 Custom Details:\n" +
+      Object.entries(formData).map(([k, v]) => `${k}: ${v}`).join("\n") : ""}
+
+      📍 Address: ${address}
+      `;
+
+      const encodedMessage = encodeURIComponent(message);
+
+      window.open(
+        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`,
+        "_blank"
+      );
+
       alert("Order placed successfully 🎉");
+
     } catch (err) {
       console.log(err);
       alert("Error placing order");
@@ -69,6 +94,32 @@ function ProductPage() {
   if (!product)
     return <h2 style={{ textAlign: "center" }}>Loading...</h2>;
 
+  const handleWhatsAppOrder = () => {
+    if (!selectedVariant) {
+      alert("Please select a design ❗");
+      return;
+    }
+
+    const message = `
+  🛍️ New Order Request
+
+  Product: ${product.name}
+  Design: ${selectedVariant.name}
+  Price: ₹${selectedVariant.price}
+
+  ${Object.keys(formData).length > 0 ? "Custom Details:\n" +
+  Object.entries(formData).map(([k, v]) => `${k}: ${v}`).join("\n") : ""}
+
+   Address: ${address || "Will share on chat"}
+    `;
+
+    const encodedMessage = encodeURIComponent(message);
+
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`,
+      "_blank"
+    );
+  };
   return (
     <div style={{ background: "#f6f6f6", minHeight: "100vh", padding: "30px" }}>
       <div
@@ -175,6 +226,24 @@ function ProductPage() {
               marginBottom: "15px",
             }}
           />
+
+          <button
+            onClick={handleWhatsAppOrder}
+            style={{
+              width: "100%",
+              padding: "15px",
+              background: "#25D366",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              cursor: "pointer",
+              marginTop: "10px",
+              fontWeight: "bold",
+            }}
+          >
+            Order on WhatsApp 💬
+          </button>
 
           {/* 🔥 CTA */}
           <button
