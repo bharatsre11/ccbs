@@ -8,10 +8,17 @@ function Admin() {
 
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
 
+  // eslint-disable-next-line no-unused-vars
   const [filter, setFilter] = useState("All");
+
+  // 🔥 PREVIEW STATES
+  const [productPreview, setProductPreview] = useState("");
+  const [categoryPreview, setCategoryPreview] = useState("");
+  const [variantPreview, setVariantPreview] = useState("");
 
   const [newCategory, setNewCategory] = useState({ name: "", image: "" });
   const [newProduct, setNewProduct] = useState({
@@ -27,7 +34,7 @@ function Admin() {
     price: "",
   });
 
-  // 🔥 SINGLE FETCH (OPTIMIZED)
+  // 🔥 FETCH
   useEffect(() => {
     axios.get(`${BASE_URL}/api/categories`).then((res) => setCategories(res.data));
     axios.get(`${BASE_URL}/api/products`).then((res) => setProducts(res.data));
@@ -41,28 +48,38 @@ function Admin() {
     }
   }, [tab]);
 
-  // 🔥 DASHBOARD STATS
-  const totalOrders = orders.length;
+  // ✅ FIXED IMAGE UPLOAD
+  const handleImageUpload = async (file, type) => {
+    const formData = new FormData();
+    formData.append("image", file);
 
-  const totalRevenue = orders.reduce((acc, o) => acc + (o.price || 0), 0);
+    try {
+      const res = await axios.post(`${BASE_URL}/api/upload`, formData);
 
-  const pendingOrders = orders.filter((o) => o.status === "Pending").length;
+      if (type === "product") {
+        setNewProduct((prev) => ({ ...prev, image: res.data.url }));
+        setProductPreview(res.data.url);
+      }
 
-  const deliveredOrders = orders.filter((o) => o.status === "Delivered").length;
+      if (type === "category") {
+        setNewCategory((prev) => ({ ...prev, image: res.data.url }));
+        setCategoryPreview(res.data.url);
+      }
 
-  // 🔥 FILTER
+      if (type === "variant") {
+        setNewVariant((prev) => ({ ...prev, image: res.data.url }));
+        setVariantPreview(res.data.url);
+      }
+    } catch (err) {
+      alert("Upload failed ❌");
+    }
+  };
+
+  // eslint-disable-next-line no-unused-vars
   const filteredOrders =
     filter === "All"
       ? orders
       : orders.filter((o) => o.status === filter);
-
-  const cardStyle = {
-    background: "white",
-    padding: "15px",
-    borderRadius: "10px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-    fontWeight: "bold",
-  };
 
   return (
     <div style={{ padding: "30px", background: "#f5f6fa", minHeight: "100vh" }}>
@@ -88,110 +105,6 @@ function Admin() {
         ))}
       </div>
 
-      {/* 🔥 ORDERS */}
-      {tab === "orders" && (
-        <div>
-          {/* DASHBOARD */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: "15px",
-              marginBottom: "20px",
-            }}
-          >
-            <div style={cardStyle}>📦 Orders: {totalOrders}</div>
-            <div style={cardStyle}>💰 Revenue: ₹{totalRevenue}</div>
-            <div style={cardStyle}>⏳ Pending: {pendingOrders}</div>
-            <div style={cardStyle}>✅ Delivered: {deliveredOrders}</div>
-          </div>
-
-          {/* FILTER */}
-          <div style={{ marginBottom: "20px" }}>
-            {["All", "Pending", "Processing", "Shipped", "Delivered"].map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                style={{
-                  marginRight: "10px",
-                  padding: "8px 15px",
-                  borderRadius: "6px",
-                  border: "none",
-                  cursor: "pointer",
-                  background: filter === f ? "#ff4d6d" : "#ddd",
-                  color: filter === f ? "white" : "black",
-                }}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-
-          {/* ORDERS LIST */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-            {filteredOrders.map((o) => (
-              <div
-                key={o._id}
-                style={{
-                  background: "white",
-                  borderRadius: "12px",
-                  padding: "15px",
-                  width: "300px",
-                  boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                }}
-              >
-                <img
-                  src={
-                    o.variantId?.image ||
-                    o.productId?.image ||
-                    "https://via.placeholder.com/300"
-                  }
-                  alt=""
-                  style={{
-                    width: "100%",
-                    borderRadius: "10px",
-                    marginBottom: "10px",
-                  }}
-                />
-
-                <p><b>User:</b> {o.userId?.name}</p>
-                <h3>{o.productId?.name}</h3>
-
-                {o.variantId && (
-                  <p style={{ fontSize: "13px" }}>
-                    🎨 {o.variantId.name}
-                  </p>
-                )}
-
-                <p><b>₹{o.price}</b></p>
-                <p style={{ fontSize: "12px" }}>📍 {o.address}</p>
-
-                {/* STATUS */}
-                <select
-                  value={o.status}
-                  onChange={(e) => {
-                    axios
-                      .put(`${BASE_URL}/api/orders/status/${o._id}`, {
-                        status: e.target.value,
-                      })
-                      .then(() => {
-                        axios.get(`${BASE_URL}/api/orders`)
-                          .then(res => setOrders(res.data));
-                      });
-                  }}
-                  style={{ width: "100%", marginTop: "10px" }}
-                >
-                  <option>Pending</option>
-                  <option>Processing</option>
-                  <option>Shipped</option>
-                  <option>Delivered</option>
-                </select>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* 🔥 PRODUCTS */}
       {tab === "products" && (
         <div>
@@ -199,7 +112,12 @@ function Admin() {
 
           <input placeholder="Name" onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
           <input placeholder="Price" onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
-          <input placeholder="Image URL" onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })} />
+
+          {/* IMAGE UPLOAD */}
+          <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "product")} />
+
+          {/* PREVIEW */}
+          {productPreview && <img src={productPreview} alt="Product Preview" width="120" style={{ marginTop: 10 }} />}
 
           <select onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}>
             <option>Select Category</option>
@@ -217,25 +135,16 @@ function Admin() {
         </div>
       )}
 
-      {/* 🔥 USERS */}
-      {tab === "users" && (
-        <div>
-          <h2>Users</h2>
-          {users.map((u) => (
-            <div key={u._id}>
-              <p>{u.name} - {u.email} ({u.role || "user"})</p>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* 🔥 CATEGORIES */}
       {tab === "categories" && (
         <div>
           <h2>Add Category</h2>
 
           <input placeholder="Name" onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} />
-          <input placeholder="Image" onChange={(e) => setNewCategory({ ...newCategory, image: e.target.value })} />
+
+          <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "category")} />
+
+          {categoryPreview && <img src={categoryPreview} alt="Category Preview" width="120" />}
 
           <button onClick={() => {
             axios.post(`${BASE_URL}/api/categories`, newCategory)
@@ -259,8 +168,11 @@ function Admin() {
           </select>
 
           <input placeholder="Name" onChange={(e) => setNewVariant({ ...newVariant, name: e.target.value })} />
-          <input placeholder="Image" onChange={(e) => setNewVariant({ ...newVariant, image: e.target.value })} />
           <input placeholder="Price" onChange={(e) => setNewVariant({ ...newVariant, price: e.target.value })} />
+
+          <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "variant")} />
+
+          {variantPreview && <img src={variantPreview} alt="Variant Preview" width="140" />}
 
           <button onClick={() => {
             axios.post(`${BASE_URL}/api/variants`, newVariant)

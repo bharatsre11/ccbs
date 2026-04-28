@@ -10,6 +10,7 @@ const orderRoutes = require("./routes/Order");
 const userRoutes = require("./routes/user");
 const categoryRoutes = require("./routes/category");
 const variantRoutes = require("./routes/variant");
+const uploadRoute = require("./routes/upload");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/variants", variantRoutes);
+app.use("/api/upload", uploadRoute);
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
