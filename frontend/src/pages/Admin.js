@@ -157,31 +157,86 @@ function Admin() {
 
       {/* 🔥 VARIANTS */}
       {tab === "variants" && (
-        <div>
-          <h2>Add Design</h2>
+  <div>
+    <h2>Add Design</h2>
 
-          <select onChange={(e) => setNewVariant({ ...newVariant, productId: e.target.value })}>
-            <option>Select Product</option>
-            {products.map((p) => (
-              <option key={p._id} value={p._id}>{p.name}</option>
-            ))}
-          </select>
+    {/* PRODUCT SELECT */}
+    <select
+      onChange={(e) =>
+        setNewVariant({ ...newVariant, productId: e.target.value })
+      }
+      style={{ display: "block", marginBottom: "10px" }}
+    >
+      <option value="">Select Product</option>
+      {products.map((p) => (
+        <option key={p._id} value={p._id}>
+          {p.name}
+        </option>
+      ))}
+    </select>
 
-          <input placeholder="Name" onChange={(e) => setNewVariant({ ...newVariant, name: e.target.value })} />
-          <input placeholder="Price" onChange={(e) => setNewVariant({ ...newVariant, price: e.target.value })} />
+    {/* NAME */}
+    <input
+      placeholder="Design Name"
+      onChange={(e) =>
+        setNewVariant({ ...newVariant, name: e.target.value })
+      }
+      style={{ display: "block", marginBottom: "10px" }}
+    />
 
-          <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "variant")} />
+    {/* PRICE */}
+    <input
+      placeholder="Price"
+      onChange={(e) =>
+        setNewVariant({ ...newVariant, price: e.target.value })
+      }
+      style={{ display: "block", marginBottom: "10px" }}
+    />
 
-          {variantPreview && <img src={variantPreview} alt="Variant Preview" width="140" />}
+    {/* 🔥 FILE UPLOAD (IMPORTANT) */}
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => {
+        const file = e.target.files[0];
+        if (file) handleImageUpload(file, "variant"); // ✅ FIXED
+      }}
+      style={{ marginBottom: "10px" }}
+    />
 
-          <button onClick={() => {
-            axios.post(`${BASE_URL}/api/variants`, newVariant)
-              .then(() => window.location.reload());
-          }}>
-            Add Design
-          </button>
-        </div>
-      )}
+    {/* 🔥 IMAGE PREVIEW */}
+    {variantPreview && (
+      <img
+        src={variantPreview}
+        alt="preview"
+        width="150"
+        style={{
+          borderRadius: "10px",
+          marginBottom: "10px",
+          display: "block"
+        }}
+      />
+    )}
+
+    {/* ADD BUTTON */}
+    <button
+      onClick={() => {
+        if (!newVariant.productId) {
+          alert("Select product first ❗");
+          return;
+        }
+
+        axios.post(`${BASE_URL}/api/variants`, newVariant)
+          .then(() => {
+            alert("Design added ✅");
+            window.location.reload();
+          });
+      }}
+    >
+      Add Design
+        </button>
+      </div>
+    )}
     </div>
   );
 }
