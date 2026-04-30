@@ -136,6 +136,17 @@ function Admin() {
             <input value={newProduct.name||""} onChange={e=>setNewProduct({...newProduct,name:e.target.value})}/>
             <input value={newProduct.price||""} onChange={e=>setNewProduct({...newProduct,price:e.target.value})}/>
             <input type="file" onChange={e=>upload(e.target.files[0],"product")}/>
+            {productPreview && (
+              <img
+                src={productPreview}
+                width="80"
+                style={{
+                  marginTop: 10,
+                  borderRadius: 8,
+                  display: "block"
+                }}
+              />
+            )}
             <button onClick={async ()=>{
               if(isEditingProduct){
                 const res = await axios.put(`${BASE_URL}/api/products/${newProduct._id}`, newProduct);
@@ -166,6 +177,17 @@ function Admin() {
           <Modal close={()=>setShowCategoryForm(false)}>
             <input value={newCategory.name||""} onChange={e=>setNewCategory({...newCategory,name:e.target.value})}/>
             <input type="file" onChange={e=>upload(e.target.files[0],"category")}/>
+            {categoryPreview && (
+              <img
+                src={categoryPreview}
+                width="80"
+                style={{
+                  marginTop: 10,
+                  borderRadius: 8,
+                  display: "block"
+                }}
+              />
+            )}
             <button onClick={async ()=>{
               if(isEditingCategory){
                 const res = await axios.put(`${BASE_URL}/api/categories/${newCategory._id}`, newCategory);
@@ -197,6 +219,17 @@ function Admin() {
             <input value={newVariant.name||""} onChange={e=>setNewVariant({...newVariant,name:e.target.value})}/>
             <input value={newVariant.price||""} onChange={e=>setNewVariant({...newVariant,price:e.target.value})}/>
             <input type="file" onChange={e=>upload(e.target.files[0],"variant")}/>
+            {variantPreview && (
+              <img
+                src={variantPreview}
+                width="80"
+                style={{
+                  marginTop: 10,
+                  borderRadius: 8,
+                  display: "block"
+                }}
+              />
+            )}
             <button onClick={async ()=>{
               if(isEditingVariant){
                 const res = await axios.put(`${BASE_URL}/api/variants/${newVariant._id}`, newVariant);
