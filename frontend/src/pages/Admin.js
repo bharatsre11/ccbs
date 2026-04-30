@@ -64,17 +64,14 @@ function Admin() {
     if (type === "product") {
       setNewProduct(p => ({ ...p, image: res.data.url }));
       setProductPreview(res.data.url);
-      {productPreview && <img src={productPreview} width="80" />}
     }
     if (type === "category") {
       setNewCategory(c => ({ ...c, image: res.data.url }));
       setCategoryPreview(res.data.url);
-      {categoryPreview && <img src={categoryPreview} width="80" />}
     }
     if (type === "variant") {
       setNewVariant(v => ({ ...v, image: res.data.url }));
       setVariantPreview(res.data.url);
-      {variantPreview && <img src={variantPreview} width="80" />}
     }
   };
 
