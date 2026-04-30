@@ -136,6 +136,7 @@ function Admin() {
             {productPreview && (
               <img
                 src={productPreview}
+                alt={newProduct.name || "Variant preview"}
                 alt="product image"
                 width="80"
                 style={{
@@ -178,7 +179,7 @@ function Admin() {
             {categoryPreview && (
               <img
                 src={categoryPreview}
-                alt="category image"
+                alt={newCategory.name || "Category preview"}
                 width="80"
                 style={{
                   marginTop: 10,
@@ -221,7 +222,7 @@ function Admin() {
             {variantPreview && (
               <img
                 src={variantPreview}
-                alt="variant image"
+                alt={newVariant.name || "Variant preview"}
                 width="80"
                 style={{
                   marginTop: 10,
