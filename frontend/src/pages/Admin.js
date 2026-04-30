@@ -8,36 +8,23 @@ function Admin() {
 
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [variants, setVariants] = useState([]);
 
-  // eslint-disable-next-line no-unused-vars
-  const [filter, setFilter] = useState("All");
-
-  // 🔥 PREVIEW STATES
   const [productPreview, setProductPreview] = useState("");
   const [categoryPreview, setCategoryPreview] = useState("");
   const [variantPreview, setVariantPreview] = useState("");
 
   const [newCategory, setNewCategory] = useState({ name: "", image: "" });
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-    image: "",
-    category: "",
-  });
-  const [newVariant, setNewVariant] = useState({
-    productId: "",
-    name: "",
-    image: "",
-    price: "",
-  });
+  const [newProduct, setNewProduct] = useState({ name: "", price: "", image: "", category: "" });
+  const [newVariant, setNewVariant] = useState({ productId: "", name: "", image: "", price: "" });
 
   // 🔥 FETCH
   useEffect(() => {
     axios.get(`${BASE_URL}/api/categories`).then((res) => setCategories(res.data));
     axios.get(`${BASE_URL}/api/products`).then((res) => setProducts(res.data));
+    axios.get(`${BASE_URL}/api/variants`).then((res) => setVariants(res.data));
 
     if (tab === "orders") {
       axios.get(`${BASE_URL}/api/orders`).then((res) => setOrders(res.data));
@@ -48,61 +35,75 @@ function Admin() {
     }
   }, [tab]);
 
-  // ✅ FIXED IMAGE UPLOAD
+  // 🔥 UPLOAD
   const handleImageUpload = async (file, type) => {
     const formData = new FormData();
     formData.append("image", file);
 
     try {
       const res = await axios.post(`${BASE_URL}/api/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (type === "product") {
-        setNewProduct((prev) => ({ ...prev, image: res.data.url }));
+        setNewProduct((p) => ({ ...p, image: res.data.url }));
         setProductPreview(res.data.url);
       }
-
       if (type === "category") {
-        setNewCategory((prev) => ({ ...prev, image: res.data.url }));
+        setNewCategory((c) => ({ ...c, image: res.data.url }));
         setCategoryPreview(res.data.url);
       }
-
       if (type === "variant") {
-        setNewVariant((prev) => ({ ...prev, image: res.data.url }));
+        setNewVariant((v) => ({ ...v, image: res.data.url }));
         setVariantPreview(res.data.url);
       }
     } catch (err) {
-      console.log(err.response?.data || err.message);
       alert("Upload failed ❌");
     }
   };
 
-  // eslint-disable-next-line no-unused-vars
-  const filteredOrders =
-    filter === "All"
-      ? orders
-      : orders.filter((o) => o.status === filter);
+  // 🔥 DELETE
+  const handleDelete = async (type, id) => {
+    if (!window.confirm("Are you sure?")) return;
+
+    await axios.delete(`${BASE_URL}/api/${type}/${id}`);
+
+    if (type === "products") setProducts(products.filter((p) => p._id !== id));
+    if (type === "categories") setCategories(categories.filter((c) => c._id !== id));
+    if (type === "variants") setVariants(variants.filter((v) => v._id !== id));
+  };
+
+  // 🎨 UI styles
+  const card = {
+    background: "#fff",
+    padding: 15,
+    borderRadius: 12,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    marginBottom: 12,
+  };
+
+  const btn = {
+    padding: "6px 12px",
+    borderRadius: 6,
+    border: "none",
+    cursor: "pointer",
+    marginRight: 6,
+  };
 
   return (
-    <div style={{ padding: "30px", background: "#f5f6fa", minHeight: "100vh" }}>
-      <h1>Admin Dashboard 🚀</h1>
+    <div style={{ padding: 30, background: "#f5f6fa", minHeight: "100vh" }}>
+      <h1 style={{ marginBottom: 20 }}>Admin Dashboard 🚀</h1>
 
-      {/* 🔹 TABS */}
-      <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
+      {/* 🔹 Tabs */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
         {["orders", "products", "users", "categories", "variants"].map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             style={{
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
+              ...btn,
               background: tab === t ? "#ff4d6d" : "#ddd",
-              color: tab === t ? "white" : "black",
+              color: tab === t ? "#fff" : "#000",
             }}
           >
             {t.toUpperCase()}
@@ -113,73 +114,81 @@ function Admin() {
       {/* 🔥 PRODUCTS */}
       {tab === "products" && (
         <div>
-          <h2>Add Product</h2>
+          <h2>{newProduct._id ? "Edit Product" : "Add Product"}</h2>
 
-          <input placeholder="Name" onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
-          <input placeholder="Price" onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
+          <input placeholder="Name" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
+          <input placeholder="Price" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
 
-          {/* IMAGE UPLOAD */}
           <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "product")} />
-
-          {/* PREVIEW */}
-          {productPreview && <img src={productPreview} alt="Product Preview" width="120" style={{ marginTop: 10 }} />}
+          {productPreview && <img src={productPreview} width="100" />}
 
           <select onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}>
             <option>Select Category</option>
-            {categories.map((c) => (
-              <option key={c._id} value={c._id}>{c.name}</option>
-            ))}
+            {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
           </select>
 
-          <button onClick={() => {
-            axios.post(`${BASE_URL}/api/products`, newProduct)
-              .then(() => window.location.reload());
-          }}>
-            Add Product
+          <button
+            style={{ ...btn, background: "#4CAF50", color: "#fff" }}
+            onClick={async () => {
+              if (newProduct._id) {
+                const res = await axios.put(`${BASE_URL}/api/products/${newProduct._id}`, newProduct);
+                setProducts(products.map(p => p._id === res.data._id ? res.data : p));
+              } else {
+                const res = await axios.post(`${BASE_URL}/api/products`, newProduct);
+                setProducts([...products, res.data]);
+              }
+              setNewProduct({ name: "", price: "", image: "", category: "" });
+              setProductPreview("");
+            }}
+          >
+            Save
           </button>
+
+          {products.map((p) => (
+            <div key={p._id} style={card}>
+              <p>{p.name} - ₹{p.price}</p>
+              <img src={p.image} width="70" />
+              <br />
+              <button style={{ ...btn, background: "#ff4d4d", color: "#fff" }} onClick={() => handleDelete("products", p._id)}>Delete</button>
+              <button style={{ ...btn, background: "#ffa500", color: "#fff" }} onClick={() => { setNewProduct(p); setProductPreview(p.image); }}>Edit</button>
+            </div>
+          ))}
         </div>
       )}
 
       {/* 🔥 CATEGORIES */}
       {tab === "categories" && (
         <div>
-          <h2>Add Category</h2>
+          <h2>{newCategory._id ? "Edit Category" : "Add Category"}</h2>
 
-          <input placeholder="Name" onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} />
-
+          <input placeholder="Name" value={newCategory.name} onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} />
           <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "category")} />
+          {categoryPreview && <img src={categoryPreview} width="100" />}
 
-          {categoryPreview && <img src={categoryPreview} alt="Category Preview" width="120" />}
-
-          <button onClick={() => {
-            axios.post(`${BASE_URL}/api/categories`, newCategory)
-              .then(() => window.location.reload());
-          }}>
-            Add Category
+          <button
+            style={{ ...btn, background: "#4CAF50", color: "#fff" }}
+            onClick={async () => {
+              if (newCategory._id) {
+                const res = await axios.put(`${BASE_URL}/api/categories/${newCategory._id}`, newCategory);
+                setCategories(categories.map(c => c._id === res.data._id ? res.data : c));
+              } else {
+                const res = await axios.post(`${BASE_URL}/api/categories`, newCategory);
+                setCategories([...categories, res.data]);
+              }
+              setNewCategory({ name: "", image: "" });
+              setCategoryPreview("");
+            }}
+          >
+            Save
           </button>
-        </div>
-      )}
 
-      {tab === "orders" && (
-        <div>
-          <h2>Orders</h2>
-          {orders.map((o) => (
-            <div key={o._id} style={{ background: "#fff", padding: 10, marginBottom: 10 }}>
-              <p><b>ID:</b> {o._id}</p>
-              <p><b>Status:</b> {o.status}</p>
-              <p><b>Total:</b> ₹{o.total}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {tab === "users" && (
-        <div>
-          <h2>Users</h2>
-          {users.map((u) => (
-            <div key={u._id} style={{ background: "#fff", padding: 10, marginBottom: 10 }}>
-              <p>{u.name}</p>
-              <p>{u.email}</p>
+          {categories.map((c) => (
+            <div key={c._id} style={card}>
+              <p>{c.name}</p>
+              <img src={c.image} width="70" />
+              <br />
+              <button style={{ ...btn, background: "#ff4d4d", color: "#fff" }} onClick={() => handleDelete("categories", c._id)}>Delete</button>
+              <button style={{ ...btn, background: "#ffa500", color: "#fff" }} onClick={() => { setNewCategory(c); setCategoryPreview(c.image); }}>Edit</button>
             </div>
           ))}
         </div>
@@ -188,86 +197,65 @@ function Admin() {
       {/* 🔥 VARIANTS */}
       {tab === "variants" && (
         <div>
-          <h2>Add Design</h2>
+          <h2>{newVariant._id ? "Edit Design" : "Add Design"}</h2>
 
-          {/* PRODUCT SELECT */}
-          <select
-            onChange={(e) =>
-              setNewVariant({ ...newVariant, productId: e.target.value })
-            }
-            style={{ display: "block", marginBottom: "10px" }}
-          >
-            <option value="">Select Product</option>
-            {products.map((p) => (
-              <option key={p._id} value={p._id}>
-                {p.name}
-              </option>
-            ))}
+          <select onChange={(e) => setNewVariant({ ...newVariant, productId: e.target.value })}>
+            <option>Select Product</option>
+            {products.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
           </select>
 
-          {/* NAME */}
-          <input
-            placeholder="Design Name"
-            onChange={(e) =>
-              setNewVariant({ ...newVariant, name: e.target.value })
-            }
-            style={{ display: "block", marginBottom: "10px" }}
-          />
+          <input placeholder="Name" value={newVariant.name} onChange={(e) => setNewVariant({ ...newVariant, name: e.target.value })} />
+          <input placeholder="Price" value={newVariant.price} onChange={(e) => setNewVariant({ ...newVariant, price: e.target.value })} />
 
-          {/* PRICE */}
-          <input
-            placeholder="Price"
-            onChange={(e) =>
-              setNewVariant({ ...newVariant, price: e.target.value })
-            }
-            style={{ display: "block", marginBottom: "10px" }}
-          />
+          <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "variant")} />
+          {variantPreview && <img src={variantPreview} width="100" />}
 
-          {/* 🔥 FILE UPLOAD (IMPORTANT) */}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) handleImageUpload(file, "variant"); // ✅ FIXED
-            }}
-            style={{ marginBottom: "10px" }}
-          />
-
-          {/* 🔥 IMAGE PREVIEW */}
-          {variantPreview && (
-            <img
-              src={variantPreview}
-              alt="preview"
-              width="150"
-              style={{
-                borderRadius: "10px",
-                marginBottom: "10px",
-                display: "block"
-              }}
-            />
-          )}
-
-          {/* ADD BUTTON */}
           <button
-            onClick={() => {
-              if (!newVariant.productId) {
-                alert("Select product first ❗");
-                return;
+            style={{ ...btn, background: "#4CAF50", color: "#fff" }}
+            onClick={async () => {
+              if (newVariant._id) {
+                const res = await axios.put(`${BASE_URL}/api/variants/${newVariant._id}`, newVariant);
+                setVariants(variants.map(v => v._id === res.data._id ? res.data : v));
+              } else {
+                const res = await axios.post(`${BASE_URL}/api/variants`, newVariant);
+                setVariants([...variants, res.data]);
               }
-
-              axios.post(`${BASE_URL}/api/variants`, newVariant)
-                .then(() => {
-                  alert("Design added ✅");
-                  window.location.reload();
-                });
+              setNewVariant({ productId: "", name: "", image: "", price: "" });
+              setVariantPreview("");
             }}
           >
-            Add Design
-              </button>
+            Save
+          </button>
+
+          {variants.map((v) => (
+            <div key={v._id} style={card}>
+              <p>{v.name} - ₹{v.price}</p>
+              <img src={v.image} width="70" />
+              <br />
+              <button style={{ ...btn, background: "#ff4d4d", color: "#fff" }} onClick={() => handleDelete("variants", v._id)}>Delete</button>
+              <button style={{ ...btn, background: "#ffa500", color: "#fff" }} onClick={() => { setNewVariant(v); setVariantPreview(v.image); }}>Edit</button>
             </div>
-          )}
+          ))}
         </div>
+      )}
+
+      {/* 🔥 ORDERS */}
+      {tab === "orders" && orders.map((o) => (
+        <div key={o._id} style={card}>
+          <p>ID: {o._id}</p>
+          <p>Status: {o.status}</p>
+          <p>Total: ₹{o.total}</p>
+        </div>
+      ))}
+
+      {/* 🔥 USERS */}
+      {tab === "users" && users.map((u) => (
+        <div key={u._id} style={card}>
+          <p>{u.name}</p>
+          <p>{u.email}</p>
+        </div>
+      ))}
+    </div>
   );
 }
 

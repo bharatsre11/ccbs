@@ -24,5 +24,14 @@ router.get("/:productId", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+router.put("/:id", async (req, res) => {
+  const updated = await Variant.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json(updated);
+});
+
+router.delete("/:id", async (req, res) => {
+  await Variant.findByIdAndDelete(req.params.id);
+  res.json({ message: "Variant deleted" });
+});
 
 module.exports = router;
