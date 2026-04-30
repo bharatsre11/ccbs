@@ -20,19 +20,23 @@ function Admin() {
   const [newProduct, setNewProduct] = useState({ name: "", price: "", image: "", category: "" });
   const [newVariant, setNewVariant] = useState({ productId: "", name: "", image: "", price: "" });
 
+  // 🔥 Modal States
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [showVariantForm, setShowVariantForm] = useState(false);
+
+  const [isEditingProduct, setIsEditingProduct] = useState(false);
+  const [isEditingCategory, setIsEditingCategory] = useState(false);
+  const [isEditingVariant, setIsEditingVariant] = useState(false);
+
   // 🔥 FETCH
   useEffect(() => {
     axios.get(`${BASE_URL}/api/categories`).then((res) => setCategories(res.data));
     axios.get(`${BASE_URL}/api/products`).then((res) => setProducts(res.data));
     axios.get(`${BASE_URL}/api/variants`).then((res) => setVariants(res.data));
 
-    if (tab === "orders") {
-      axios.get(`${BASE_URL}/api/orders`).then((res) => setOrders(res.data));
-    }
-
-    if (tab === "users") {
-      axios.get(`${BASE_URL}/api/users`).then((res) => setUsers(res.data));
-    }
+    if (tab === "orders") axios.get(`${BASE_URL}/api/orders`).then((res) => setOrders(res.data));
+    if (tab === "users") axios.get(`${BASE_URL}/api/users`).then((res) => setUsers(res.data));
   }, [tab]);
 
   // 🔥 UPLOAD
@@ -40,252 +44,221 @@ function Admin() {
     const formData = new FormData();
     formData.append("image", file);
 
-    try {
-      const res = await axios.post(`${BASE_URL}/api/upload`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+    const res = await axios.post(`${BASE_URL}/api/upload`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
-      if (type === "product") {
-        setNewProduct((p) => ({ ...p, image: res.data.url }));
-        setProductPreview(res.data.url);
-      }
-      if (type === "category") {
-        setNewCategory((c) => ({ ...c, image: res.data.url }));
-        setCategoryPreview(res.data.url);
-      }
-      if (type === "variant") {
-        setNewVariant((v) => ({ ...v, image: res.data.url }));
-        setVariantPreview(res.data.url);
-      }
-    } catch (err) {
-      alert("Upload failed ❌");
+    if (type === "product") {
+      setNewProduct(p => ({ ...p, image: res.data.url }));
+      setProductPreview(res.data.url);
+    }
+    if (type === "category") {
+      setNewCategory(c => ({ ...c, image: res.data.url }));
+      setCategoryPreview(res.data.url);
+    }
+    if (type === "variant") {
+      setNewVariant(v => ({ ...v, image: res.data.url }));
+      setVariantPreview(res.data.url);
     }
   };
 
   // 🔥 DELETE
   const handleDelete = async (type, id) => {
-    if (!window.confirm("Are you sure?")) return;
+    if (!window.confirm("Delete?")) return;
 
     await axios.delete(`${BASE_URL}/api/${type}/${id}`);
 
-    if (type === "products") setProducts(products.filter((p) => p._id !== id));
-    if (type === "categories") setCategories(categories.filter((c) => c._id !== id));
-    if (type === "variants") setVariants(variants.filter((v) => v._id !== id));
+    if (type === "products") setProducts(products.filter(p => p._id !== id));
+    if (type === "categories") setCategories(categories.filter(c => c._id !== id));
+    if (type === "variants") setVariants(variants.filter(v => v._id !== id));
   };
 
-  // 🎨 UI styles
-  const card = {
-    background: "#fff",
-    padding: 15,
-    borderRadius: 12,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    marginBottom: 12,
-  };
-
-  const btn = {
-    padding: "6px 12px",
-    borderRadius: 6,
-    border: "none",
-    cursor: "pointer",
-    marginRight: 6,
-  };
+  const card = { background: "#fff", padding: 15, borderRadius: 12, marginBottom: 10 };
 
   return (
-    <div style={{ padding: 30, background: "#f5f6fa", minHeight: "100vh" }}>
-      <h1 style={{ marginBottom: 20 }}>Admin Dashboard 🚀</h1>
+    <div style={{ padding: 30, background: "#f5f6fa" }}>
+      <h1>Admin Dashboard 🚀</h1>
 
-      {/* 🔹 Tabs */}
+      {/* Tabs */}
       <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-        {["orders", "products", "users", "categories", "variants"].map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            style={{
-              ...btn,
-              background: tab === t ? "#ff4d6d" : "#ddd",
-              color: tab === t ? "#fff" : "#000",
-            }}
-          >
-            {t.toUpperCase()}
-          </button>
+        {["orders", "products", "users", "categories", "variants"].map(t => (
+          <button key={t} onClick={() => setTab(t)}>{t}</button>
         ))}
       </div>
 
-      {/* 🔥 PRODUCTS */}
+      {/* PRODUCTS */}
       {tab === "products" && (
-        <div>
-          <h2>{newProduct._id ? "Edit Product" : "Add Product"}</h2>
-
-          <input placeholder="Name" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
-          <input placeholder="Price" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
-
-          <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "product")} />
-          {productPreview && <img src={productPreview} width="100" />}
-
-          <select onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}>
-            <option>Select Category</option>
-            {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
-          </select>
-
-          <button
-            style={{ ...btn, background: "#4CAF50", color: "#fff" }}
-            onClick={async () => {
-              if (newProduct._id) {
-                const res = await axios.put(`${BASE_URL}/api/products/${newProduct._id}`, newProduct);
-                setProducts(products.map(p => p._id === res.data._id ? res.data : p));
-              } else {
-                const res = await axios.post(`${BASE_URL}/api/products`, newProduct);
-                setProducts([...products, res.data]);
-              }
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <h2>Products</h2>
+            <button onClick={() => {
               setNewProduct({ name: "", price: "", image: "", category: "" });
               setProductPreview("");
-            }}
-          >
-            Save
-          </button>
+              setIsEditingProduct(false);
+              setShowProductForm(true);
+            }}>+ Add</button>
+          </div>
 
-          {products.length === 0 ? (
-            <p>No products found</p>
-          ) : (
-            products.map((p) => (
-              <div key={p._id} style={{ background: "#fff", padding: 10, margin: 10 }}>
-                <p>{p.name} - ₹{p.price}</p>
-                <img src={p.image} width="80" />
+          {products.map(p => (
+            <div key={p._id} style={card}>
+              <p>{p.name} - ₹{p.price}</p>
+              <img src={p.image} width="60" />
+              <br />
+              <button onClick={() => handleDelete("products", p._id)}>Delete</button>
+              <button onClick={() => {
+                setNewProduct(p);
+                setProductPreview(p.image);
+                setIsEditingProduct(true);
+                setShowProductForm(true);
+              }}>Edit</button>
+            </div>
+          ))}
 
-                <div style={{ marginTop: 10 }}>
-                  <button
-                    style={{
-                      background: "red",
-                      color: "#fff",
-                      padding: "5px 10px",
-                      border: "none",
-                      marginRight: 5
-                    }}
-                    onClick={() => handleDelete("products", p._id)}
-                  >
-                    Delete
-                  </button>
-
-                  <button
-                    style={{
-                      background: "orange",
-                      color: "#fff",
-                      padding: "5px 10px",
-                      border: "none"
-                    }}
-                    onClick={() => {
-                      setNewProduct(p);
-                      setProductPreview(p.image);
-                    }}
-                  >
-                    Edit
-                  </button>
-                </div>
-              </div>
-            ))
+          {showProductForm && (
+            <Modal onClose={() => setShowProductForm(false)}>
+              <h3>{isEditingProduct ? "Edit" : "Add"} Product</h3>
+              <input placeholder="Name" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})}/>
+              <input placeholder="Price" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})}/>
+              <input type="file" onChange={e => handleImageUpload(e.target.files[0], "product")} />
+              {productPreview && <img src={productPreview} width="80"/>}
+              <select onChange={e => setNewProduct({...newProduct, category: e.target.value})}>
+                <option>Select Category</option>
+                {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+              </select>
+              <button onClick={async () => {
+                if (isEditingProduct) {
+                  const res = await axios.put(`${BASE_URL}/api/products/${newProduct._id}`, newProduct);
+                  setProducts(products.map(p => p._id === res.data._id ? res.data : p));
+                } else {
+                  const res = await axios.post(`${BASE_URL}/api/products`, newProduct);
+                  setProducts([...products, res.data]);
+                }
+                setShowProductForm(false);
+              }}>Save</button>
+            </Modal>
           )}
-        </div>
+        </>
       )}
 
-      {/* 🔥 CATEGORIES */}
+      {/* CATEGORIES */}
       {tab === "categories" && (
-        <div>
-          <h2>{newCategory._id ? "Edit Category" : "Add Category"}</h2>
-
-          <input placeholder="Name" value={newCategory.name} onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} />
-          <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "category")} />
-          {categoryPreview && <img src={categoryPreview} width="100" />}
-
-          <button
-            style={{ ...btn, background: "#4CAF50", color: "#fff" }}
-            onClick={async () => {
-              if (newCategory._id) {
-                const res = await axios.put(`${BASE_URL}/api/categories/${newCategory._id}`, newCategory);
-                setCategories(categories.map(c => c._id === res.data._id ? res.data : c));
-              } else {
-                const res = await axios.post(`${BASE_URL}/api/categories`, newCategory);
-                setCategories([...categories, res.data]);
-              }
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <h2>Categories</h2>
+            <button onClick={() => {
               setNewCategory({ name: "", image: "" });
               setCategoryPreview("");
-            }}
-          >
-            Save
-          </button>
+              setIsEditingCategory(false);
+              setShowCategoryForm(true);
+            }}>+ Add</button>
+          </div>
 
-          {categories.map((c) => (
+          {categories.map(c => (
             <div key={c._id} style={card}>
               <p>{c.name}</p>
-              <img src={c.image} width="70" />
+              <img src={c.image} width="60"/>
               <br />
-              <button style={{ ...btn, background: "#ff4d4d", color: "#fff" }} onClick={() => handleDelete("categories", c._id)}>Delete</button>
-              <button style={{ ...btn, background: "#ffa500", color: "#fff" }} onClick={() => { setNewCategory(c); setCategoryPreview(c.image); }}>Edit</button>
+              <button onClick={() => handleDelete("categories", c._id)}>Delete</button>
+              <button onClick={() => {
+                setNewCategory(c);
+                setCategoryPreview(c.image);
+                setIsEditingCategory(true);
+                setShowCategoryForm(true);
+              }}>Edit</button>
             </div>
           ))}
-        </div>
+
+          {showCategoryForm && (
+            <Modal onClose={() => setShowCategoryForm(false)}>
+              <h3>{isEditingCategory ? "Edit" : "Add"} Category</h3>
+              <input value={newCategory.name} onChange={e => setNewCategory({...newCategory, name: e.target.value})}/>
+              <input type="file" onChange={e => handleImageUpload(e.target.files[0], "category")} />
+              {categoryPreview && <img src={categoryPreview} width="80"/>}
+              <button onClick={async () => {
+                if (isEditingCategory) {
+                  const res = await axios.put(`${BASE_URL}/api/categories/${newCategory._id}`, newCategory);
+                  setCategories(categories.map(c => c._id === res.data._id ? res.data : c));
+                } else {
+                  const res = await axios.post(`${BASE_URL}/api/categories`, newCategory);
+                  setCategories([...categories, res.data]);
+                }
+                setShowCategoryForm(false);
+              }}>Save</button>
+            </Modal>
+          )}
+        </>
       )}
 
-      {/* 🔥 VARIANTS */}
+      {/* VARIANTS */}
       {tab === "variants" && (
-        <div>
-          <h2>{newVariant._id ? "Edit Design" : "Add Design"}</h2>
-
-          <select onChange={(e) => setNewVariant({ ...newVariant, productId: e.target.value })}>
-            <option>Select Product</option>
-            {products.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
-          </select>
-
-          <input placeholder="Name" value={newVariant.name} onChange={(e) => setNewVariant({ ...newVariant, name: e.target.value })} />
-          <input placeholder="Price" value={newVariant.price} onChange={(e) => setNewVariant({ ...newVariant, price: e.target.value })} />
-
-          <input type="file" onChange={(e) => handleImageUpload(e.target.files[0], "variant")} />
-          {variantPreview && <img src={variantPreview} width="100" />}
-
-          <button
-            style={{ ...btn, background: "#4CAF50", color: "#fff" }}
-            onClick={async () => {
-              if (newVariant._id) {
-                const res = await axios.put(`${BASE_URL}/api/variants/${newVariant._id}`, newVariant);
-                setVariants(variants.map(v => v._id === res.data._id ? res.data : v));
-              } else {
-                const res = await axios.post(`${BASE_URL}/api/variants`, newVariant);
-                setVariants([...variants, res.data]);
-              }
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <h2>Variants</h2>
+            <button onClick={() => {
               setNewVariant({ productId: "", name: "", image: "", price: "" });
               setVariantPreview("");
-            }}
-          >
-            Save
-          </button>
+              setIsEditingVariant(false);
+              setShowVariantForm(true);
+            }}>+ Add</button>
+          </div>
 
-          {variants.map((v) => (
+          {variants.map(v => (
             <div key={v._id} style={card}>
               <p>{v.name} - ₹{v.price}</p>
-              <img src={v.image} width="70" />
+              <img src={v.image} width="60"/>
               <br />
-              <button style={{ ...btn, background: "#ff4d4d", color: "#fff" }} onClick={() => handleDelete("variants", v._id)}>Delete</button>
-              <button style={{ ...btn, background: "#ffa500", color: "#fff" }} onClick={() => { setNewVariant(v); setVariantPreview(v.image); }}>Edit</button>
+              <button onClick={() => handleDelete("variants", v._id)}>Delete</button>
+              <button onClick={() => {
+                setNewVariant(v);
+                setVariantPreview(v.image);
+                setIsEditingVariant(true);
+                setShowVariantForm(true);
+              }}>Edit</button>
             </div>
           ))}
-        </div>
+
+          {showVariantForm && (
+            <Modal onClose={() => setShowVariantForm(false)}>
+              <h3>{isEditingVariant ? "Edit" : "Add"} Variant</h3>
+              <select onChange={e => setNewVariant({...newVariant, productId: e.target.value})}>
+                <option>Select Product</option>
+                {products.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+              </select>
+              <input value={newVariant.name} onChange={e => setNewVariant({...newVariant, name: e.target.value})}/>
+              <input value={newVariant.price} onChange={e => setNewVariant({...newVariant, price: e.target.value})}/>
+              <input type="file" onChange={e => handleImageUpload(e.target.files[0], "variant")} />
+              {variantPreview && <img src={variantPreview} width="80"/>}
+              <button onClick={async () => {
+                if (isEditingVariant) {
+                  const res = await axios.put(`${BASE_URL}/api/variants/${newVariant._id}`, newVariant);
+                  setVariants(variants.map(v => v._id === res.data._id ? res.data : v));
+                } else {
+                  const res = await axios.post(`${BASE_URL}/api/variants`, newVariant);
+                  setVariants([...variants, res.data]);
+                }
+                setShowVariantForm(false);
+              }}>Save</button>
+            </Modal>
+          )}
+        </>
       )}
+    </div>
+  );
+}
 
-      {/* 🔥 ORDERS */}
-      {tab === "orders" && orders.map((o) => (
-        <div key={o._id} style={card}>
-          <p>ID: {o._id}</p>
-          <p>Status: {o.status}</p>
-          <p>Total: ₹{o.total}</p>
-        </div>
-      ))}
-
-      {/* 🔥 USERS */}
-      {tab === "users" && users.map((u) => (
-        <div key={u._id} style={card}>
-          <p>{u.name}</p>
-          <p>{u.email}</p>
-        </div>
-      ))}
+// 🔥 Reusable Modal
+function Modal({ children, onClose }) {
+  return (
+    <div style={{
+      position: "fixed",
+      top: 0, left: 0, width: "100%", height: "100%",
+      background: "rgba(0,0,0,0.4)",
+      display: "flex", justifyContent: "center", alignItems: "center"
+    }}>
+      <div style={{ background: "#fff", padding: 20, borderRadius: 10 }}>
+        <button onClick={onClose} style={{ float: "right" }}>X</button>
+        {children}
+      </div>
     </div>
   );
 }
