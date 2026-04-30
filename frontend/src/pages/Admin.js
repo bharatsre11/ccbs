@@ -17,9 +17,9 @@ function Admin() {
   const [newCategory, setNewCategory] = useState({});
   const [newVariant, setNewVariant] = useState({});
 
-  const [productPreview, setProductPreview] = useState("");
-  const [categoryPreview, setCategoryPreview] = useState("");
-  const [variantPreview, setVariantPreview] = useState("");
+  //const [productPreview, setProductPreview] = useState("");
+  //const [categoryPreview, setCategoryPreview] = useState("");
+  //const [variantPreview, setVariantPreview] = useState("");
 
   const [showProductForm, setShowProductForm] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
