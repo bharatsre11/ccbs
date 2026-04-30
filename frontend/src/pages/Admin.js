@@ -137,7 +137,6 @@ function Admin() {
               <img
                 src={productPreview}
                 alt={newProduct.name || "Variant preview"}
-                alt="product image"
                 width="80"
                 style={{
                   marginTop: 10,
