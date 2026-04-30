@@ -54,7 +54,11 @@ function Admin() {
     formData.append("image", file);
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/upload`, formData);
+      const res = await axios.post(`${BASE_URL}/api/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (type === "product") {
         setNewProduct((prev) => ({ ...prev, image: res.data.url }));
@@ -71,6 +75,7 @@ function Admin() {
         setVariantPreview(res.data.url);
       }
     } catch (err) {
+      console.log(err.response?.data || err.message);
       alert("Upload failed ❌");
     }
   };
