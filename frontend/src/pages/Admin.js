@@ -155,89 +155,114 @@ function Admin() {
         </div>
       )}
 
+      {tab === "orders" && (
+        <div>
+          <h2>Orders</h2>
+          {orders.map((o) => (
+            <div key={o._id} style={{ background: "#fff", padding: 10, marginBottom: 10 }}>
+              <p><b>ID:</b> {o._id}</p>
+              <p><b>Status:</b> {o.status}</p>
+              <p><b>Total:</b> ₹{o.total}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab === "users" && (
+        <div>
+          <h2>Users</h2>
+          {users.map((u) => (
+            <div key={u._id} style={{ background: "#fff", padding: 10, marginBottom: 10 }}>
+              <p>{u.name}</p>
+              <p>{u.email}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* 🔥 VARIANTS */}
       {tab === "variants" && (
-  <div>
-    <h2>Add Design</h2>
+        <div>
+          <h2>Add Design</h2>
 
-    {/* PRODUCT SELECT */}
-    <select
-      onChange={(e) =>
-        setNewVariant({ ...newVariant, productId: e.target.value })
-      }
-      style={{ display: "block", marginBottom: "10px" }}
-    >
-      <option value="">Select Product</option>
-      {products.map((p) => (
-        <option key={p._id} value={p._id}>
-          {p.name}
-        </option>
-      ))}
-    </select>
+          {/* PRODUCT SELECT */}
+          <select
+            onChange={(e) =>
+              setNewVariant({ ...newVariant, productId: e.target.value })
+            }
+            style={{ display: "block", marginBottom: "10px" }}
+          >
+            <option value="">Select Product</option>
+            {products.map((p) => (
+              <option key={p._id} value={p._id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
 
-    {/* NAME */}
-    <input
-      placeholder="Design Name"
-      onChange={(e) =>
-        setNewVariant({ ...newVariant, name: e.target.value })
-      }
-      style={{ display: "block", marginBottom: "10px" }}
-    />
+          {/* NAME */}
+          <input
+            placeholder="Design Name"
+            onChange={(e) =>
+              setNewVariant({ ...newVariant, name: e.target.value })
+            }
+            style={{ display: "block", marginBottom: "10px" }}
+          />
 
-    {/* PRICE */}
-    <input
-      placeholder="Price"
-      onChange={(e) =>
-        setNewVariant({ ...newVariant, price: e.target.value })
-      }
-      style={{ display: "block", marginBottom: "10px" }}
-    />
+          {/* PRICE */}
+          <input
+            placeholder="Price"
+            onChange={(e) =>
+              setNewVariant({ ...newVariant, price: e.target.value })
+            }
+            style={{ display: "block", marginBottom: "10px" }}
+          />
 
-    {/* 🔥 FILE UPLOAD (IMPORTANT) */}
-    <input
-      type="file"
-      accept="image/*"
-      onChange={(e) => {
-        const file = e.target.files[0];
-        if (file) handleImageUpload(file, "variant"); // ✅ FIXED
-      }}
-      style={{ marginBottom: "10px" }}
-    />
+          {/* 🔥 FILE UPLOAD (IMPORTANT) */}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (file) handleImageUpload(file, "variant"); // ✅ FIXED
+            }}
+            style={{ marginBottom: "10px" }}
+          />
 
-    {/* 🔥 IMAGE PREVIEW */}
-    {variantPreview && (
-      <img
-        src={variantPreview}
-        alt="preview"
-        width="150"
-        style={{
-          borderRadius: "10px",
-          marginBottom: "10px",
-          display: "block"
-        }}
-      />
-    )}
+          {/* 🔥 IMAGE PREVIEW */}
+          {variantPreview && (
+            <img
+              src={variantPreview}
+              alt="preview"
+              width="150"
+              style={{
+                borderRadius: "10px",
+                marginBottom: "10px",
+                display: "block"
+              }}
+            />
+          )}
 
-    {/* ADD BUTTON */}
-    <button
-      onClick={() => {
-        if (!newVariant.productId) {
-          alert("Select product first ❗");
-          return;
-        }
+          {/* ADD BUTTON */}
+          <button
+            onClick={() => {
+              if (!newVariant.productId) {
+                alert("Select product first ❗");
+                return;
+              }
 
-        axios.post(`${BASE_URL}/api/variants`, newVariant)
-          .then(() => {
-            alert("Design added ✅");
-            window.location.reload();
-          });
-      }}
-    >
-      Add Design
-        </button>
-      </div>
-    )}
-    </div>
+              axios.post(`${BASE_URL}/api/variants`, newVariant)
+                .then(() => {
+                  alert("Design added ✅");
+                  window.location.reload();
+                });
+            }}
+          >
+            Add Design
+              </button>
+            </div>
+          )}
+        </div>
   );
 }
 
