@@ -136,6 +136,7 @@ function Admin() {
             {productPreview && (
               <img
                 src={productPreview}
+                alt="product image"
                 width="80"
                 style={{
                   marginTop: 10,
@@ -177,6 +178,7 @@ function Admin() {
             {categoryPreview && (
               <img
                 src={categoryPreview}
+                alt="category image"
                 width="80"
                 style={{
                   marginTop: 10,
@@ -219,6 +221,7 @@ function Admin() {
             {variantPreview && (
               <img
                 src={variantPreview}
+                alt="variant image"
                 width="80"
                 style={{
                   marginTop: 10,
