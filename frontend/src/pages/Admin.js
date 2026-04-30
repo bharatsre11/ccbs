@@ -144,15 +144,46 @@ function Admin() {
             Save
           </button>
 
-          {products.map((p) => (
-            <div key={p._id} style={card}>
-              <p>{p.name} - ₹{p.price}</p>
-              <img src={p.image} width="70" />
-              <br />
-              <button style={{ ...btn, background: "#ff4d4d", color: "#fff" }} onClick={() => handleDelete("products", p._id)}>Delete</button>
-              <button style={{ ...btn, background: "#ffa500", color: "#fff" }} onClick={() => { setNewProduct(p); setProductPreview(p.image); }}>Edit</button>
-            </div>
-          ))}
+          {products.length === 0 ? (
+            <p>No products found</p>
+          ) : (
+            products.map((p) => (
+              <div key={p._id} style={{ background: "#fff", padding: 10, margin: 10 }}>
+                <p>{p.name} - ₹{p.price}</p>
+                <img src={p.image} width="80" />
+
+                <div style={{ marginTop: 10 }}>
+                  <button
+                    style={{
+                      background: "red",
+                      color: "#fff",
+                      padding: "5px 10px",
+                      border: "none",
+                      marginRight: 5
+                    }}
+                    onClick={() => handleDelete("products", p._id)}
+                  >
+                    Delete
+                  </button>
+
+                  <button
+                    style={{
+                      background: "orange",
+                      color: "#fff",
+                      padding: "5px 10px",
+                      border: "none"
+                    }}
+                    onClick={() => {
+                      setNewProduct(p);
+                      setProductPreview(p.image);
+                    }}
+                  >
+                    Edit
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 
