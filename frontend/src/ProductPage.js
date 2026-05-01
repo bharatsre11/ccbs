@@ -26,10 +26,11 @@ function ProductPage() {
   // 🔥 Fetch variants
   useEffect(() => {
     axios
-      .get(`https://ccbs.onrender.com/api/variants/${id}`)
+      .get(`https://ccbs.onrender.com/api/variants/product/${id}`)
       .then((res) => setVariants(res.data))
       .catch((err) => console.log(err));
   }, [id]);
+
 
   const handleChange = (label, value) => {
     setFormData((prev) => ({
