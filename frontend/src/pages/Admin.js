@@ -28,7 +28,13 @@ function Admin() {
   const [isEditingProduct, setIsEditingProduct] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [isEditingVariant, setIsEditingVariant] = useState(false);
-
+  const btn = {
+    padding: "6px 12px",
+    borderRadius: "6px",
+    border: "none",
+    cursor: "pointer",
+    marginRight: "6px"
+  };
   useEffect(() => {
     axios.get(`${BASE_URL}/api/orders`).then(res => setOrders(res.data));
     axios.get(`${BASE_URL}/api/products`).then(res => setProducts(res.data));
@@ -202,47 +208,197 @@ function Admin() {
       </>}
 
       {/* VARIANTS */}
-      {tab==="variants" && <>
-        <button onClick={()=>{setNewVariant({}); setShowVariantForm(true);}}>+ Add</button>
+      {tab === "variants" && (
+      <div>
 
-        {filter(variants,"name").map(v=>(
-          <div key={v._id} style={card}>
-            <p>{v.name}</p>
-            <button onClick={()=>handleDelete("variants",v._id)}>Delete</button>
-            <button onClick={()=>{setNewVariant(v); setShowVariantForm(true); setIsEditingVariant(true);}}>Edit</button>
-          </div>
-        ))}
+        {/* 🔥 HEADER */}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20
+        }}>
+          <h2>Variants</h2>
 
+          <button
+            onClick={() => {
+              setNewVariant({ productId: "", name: "", price: "", image: "" });
+              setVariantPreview("");
+              setIsEditingVariant(false);
+              setShowVariantForm(true);
+            }}
+            style={{
+              padding: "8px 16px",
+              background: "#ff4d6d",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer"
+            }}
+          >
+            + Add Variant
+          </button>
+        </div>
+
+        {/* 🔥 LIST */}
+        {variants.length === 0 ? (
+          <p>No variants found</p>
+        ) : (
+          filter(variants, "name").map((v) => (
+            <div key={v._id} style={card}>
+              <p><b>{v.name}</b> - ₹{v.price}</p>
+
+              {/* Product name */}
+              <small style={{ color: "#777" }}>
+                {products.find(p => p._id === v.productId)?.name}
+              </small>
+
+              <br />
+
+              <img
+                src={v.image}
+                alt={v.name}
+                width="70"
+                style={{ marginTop: 10, borderRadius: 8 }}
+              />
+
+              <div style={{ marginTop: 10 }}>
+                <button
+                  style={{ ...btn, background: "#ff4d4d", color: "#fff" }}
+                  onClick={() => handleDelete("variants", v._id)}
+                >
+                  Delete
+                </button>
+
+                <button
+                  style={{ ...btn, background: "#ffa500", color: "#fff" }}
+                  onClick={() => {
+                    setNewVariant(v);
+                    setVariantPreview(v.image);
+                    setIsEditingVariant(true);
+                    setShowVariantForm(true);
+                  }}
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+
+        {/* 🔥 MODAL */}
         {showVariantForm && (
-          <Modal close={()=>setShowVariantForm(false)}>
-            <input value={newVariant.name||""} onChange={e=>setNewVariant({...newVariant,name:e.target.value})}/>
-            <input value={newVariant.price||""} onChange={e=>setNewVariant({...newVariant,price:e.target.value})}/>
-            <input type="file" onChange={e=>upload(e.target.files[0],"variant")}/>
+          <Modal close={() => setShowVariantForm(false)}>
+
+            <h3 style={{ marginBottom: 10 }}>
+              {isEditingVariant ? "Edit Variant" : "Add Variant"}
+            </h3>
+
+            {/* PRODUCT */}
+            <select
+              value={newVariant.productId || ""}
+              onChange={(e) =>
+                setNewVariant({ ...newVariant, productId: e.target.value })
+              }
+              style={{ display: "block", marginBottom: 10, width: "100%" }}
+            >
+              <option value="">Select Product</option>
+              {products.map((p) => (
+                <option key={p._id} value={p._id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+
+            {/* NAME */}
+            <input
+              placeholder="Variant Name"
+              value={newVariant.name || ""}
+              onChange={(e) =>
+                setNewVariant({ ...newVariant, name: e.target.value })
+              }
+              style={{ display: "block", marginBottom: 10, width: "100%" }}
+            />
+
+            {/* PRICE */}
+            <input
+              type="number"
+              placeholder="Price"
+              value={newVariant.price || ""}
+              onChange={(e) =>
+                setNewVariant({ ...newVariant, price: e.target.value })
+              }
+              style={{ display: "block", marginBottom: 10, width: "100%" }}
+            />
+
+            {/* IMAGE */}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => upload(e.target.files[0], "variant")}
+              style={{ marginBottom: 10 }}
+            />
+
+            {/* PREVIEW */}
             {variantPreview && (
               <img
                 src={variantPreview}
                 alt={newVariant.name || "Variant preview"}
-                width="80"
-                style={{
-                  marginTop: 10,
-                  borderRadius: 8,
-                  display: "block"
-                }}
+                width="100"
+                style={{ borderRadius: 10, marginBottom: 10 }}
               />
             )}
-            <button onClick={async ()=>{
-              if(isEditingVariant){
-                const res = await axios.put(`${BASE_URL}/api/variants/${newVariant._id}`, newVariant);
-                setVariants(variants.map(v=>v._id===res.data._id?res.data:v));
-              } else {
-                const res = await axios.post(`${BASE_URL}/api/variants`, newVariant);
-                setVariants([...variants,res.data]);
-              }
-              setShowVariantForm(false);
-            }}>Save</button>
+
+            {/* SAVE */}
+            <button
+              style={{
+                width: "100%",
+                padding: "10px",
+                background: "#4CAF50",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer"
+              }}
+              onClick={async () => {
+                if (!newVariant.productId) {
+                  alert("Select product first ❗");
+                  return;
+                }
+
+                if (isEditingVariant) {
+                  const res = await axios.put(
+                    `${BASE_URL}/api/variants/${newVariant._id}`,
+                    newVariant
+                  );
+
+                  setVariants(
+                    variants.map((v) =>
+                      v._id === res.data._id ? res.data : v
+                    )
+                  );
+                } else {
+                  const res = await axios.post(
+                    `${BASE_URL}/api/variants`,
+                    newVariant
+                  );
+
+                  setVariants([...variants, res.data]);
+                }
+
+                // RESET
+                setNewVariant({ productId: "", name: "", price: "", image: "" });
+                setVariantPreview("");
+                setShowVariantForm(false);
+                setIsEditingVariant(false);
+              }}
+            >
+              {isEditingVariant ? "Update Variant" : "Add Variant"}
+            </button>
           </Modal>
         )}
-      </>}
+      </div>
+      )}
 
       {/* USERS */}
       {tab==="users" &&
