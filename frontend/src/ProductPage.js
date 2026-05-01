@@ -168,6 +168,16 @@ function ProductPage() {
               marginBottom: "20px",
             }}
           >
+            {/* ✅ SELECTED VARIANT NAME */}
+            {selectedVariant && (
+              <p style={{
+                fontWeight: "600",
+                marginBottom: 10,
+                color: "#333"
+              }}>
+                {selectedVariant.name}
+              </p>
+            )}
             {variants.map((v) => (
               <img
                 key={v._id}
