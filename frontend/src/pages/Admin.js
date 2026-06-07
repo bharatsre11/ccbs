@@ -442,7 +442,7 @@ function Admin() {
                 }
 
                 // RESET
-                setNewCategory({ name: "", image: "" });
+                setNewCategory({ name: ""});
                 setShowCategoryForm(false);
                 setIsEditingCategory(false);
               }}
