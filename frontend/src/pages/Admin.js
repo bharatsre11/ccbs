@@ -331,7 +331,7 @@ function Admin() {
           <button
             onClick={() => {
               setNewCategory({ name: ""});
-              setIsEditingCategory(true);
+              setIsEditingCategory(false);
               setShowCategoryForm(true);
             }}
             style={{
@@ -433,12 +433,23 @@ function Admin() {
                     )
                   );
                 } else {
-                  const res = await axios.post(
-                    `${BASE_URL}/api/categories`,
-                    newCategory
-                  );
+                  try {
+                    console.log("Creating category:", newCategory);
 
-                  setCategories([...categories, res.data]);
+                    const res = await axios.post(
+                      `${BASE_URL}/api/categories`,
+                      {
+                        name: newCategory.name.trim()
+                      }
+                    );
+
+                    console.log("Response:", res.data);
+
+                    setCategories([...categories, res.data]);
+                  } catch (err) {
+                    console.log("ERROR:", err.response?.data);
+                    alert(JSON.stringify(err.response?.data));
+                  }
                 }
 
                 // RESET
