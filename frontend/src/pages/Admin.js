@@ -234,7 +234,7 @@ function Admin() {
 
             {/* PRICE */}
             <input
-              type="number"
+              type="string"
               placeholder="Price"
               value={newProduct.price || ""}
               onChange={(e) =>
