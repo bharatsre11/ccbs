@@ -331,7 +331,7 @@ function Admin() {
           <button
             onClick={() => {
               setNewCategory({ name: ""});
-              setIsEditingCategory(false);
+              setIsEditingCategory(true);
               setShowCategoryForm(true);
             }}
             style={{
