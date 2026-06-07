@@ -18,7 +18,6 @@ function Admin() {
   const [newVariant, setNewVariant] = useState({});
 
   const [productPreview, setProductPreview] = useState("");
-  const [categoryPreview, setCategoryPreview] = useState("");
   const [variantPreview, setVariantPreview] = useState("");
 
   const [showProductForm, setShowProductForm] = useState(false);
@@ -72,10 +71,6 @@ function Admin() {
     if (type === "product") {
       setNewProduct(p => ({ ...p, image: res.data.url }));
       setProductPreview(res.data.url);
-    }
-    if (type === "category") {
-      setNewCategory(c => ({ ...c, image: res.data.url }));
-      setCategoryPreview(res.data.url);
     }
     if (type === "variant") {
       setNewVariant(v => ({ ...v, image: res.data.url }));
@@ -336,7 +331,6 @@ function Admin() {
           <button
             onClick={() => {
               setNewCategory({ name: "", image: "" });
-              setCategoryPreview("");
               setIsEditingCategory(false);
               setShowCategoryForm(true);
             }}
@@ -380,7 +374,6 @@ function Admin() {
                   style={{ ...btn, background: "#ffa500", color: "#fff" }}
                   onClick={() => {
                     setNewCategory(c);
-                    setCategoryPreview(c.image);
                     setIsEditingCategory(true);
                     setShowCategoryForm(true);
                   }}
@@ -408,25 +401,7 @@ function Admin() {
                 setNewCategory({ ...newCategory, name: e.target.value })
               }
               style={{ display: "block", marginBottom: 10, width: "100%" }}
-            />
-
-            {/* IMAGE */}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => upload(e.target.files[0], "category")}
-              style={{ marginBottom: 10 }}
-            />
-
-            {/* PREVIEW */}
-            {categoryPreview && (
-              <img
-                src={categoryPreview}
-                alt={newCategory.name || "Category preview"}
-                width="100"
-                style={{ borderRadius: 10, marginBottom: 10 }}
-              />
-            )}
+            />           
 
             {/* SAVE */}
             <button
@@ -468,7 +443,6 @@ function Admin() {
 
                 // RESET
                 setNewCategory({ name: "", image: "" });
-                setCategoryPreview("");
                 setShowCategoryForm(false);
                 setIsEditingCategory(false);
               }}
